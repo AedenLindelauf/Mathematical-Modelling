@@ -1,1 +1,1 @@
-# Mathematical-Modelling
+# Mathematical Modelling
