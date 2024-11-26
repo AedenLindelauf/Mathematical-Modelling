@@ -1,3 +1,6 @@
+from main import Tree
+from node import *
+
 def is_function(token : str) -> bool:
     return False
 
@@ -33,14 +36,14 @@ class Post_Fixer:
             elif token == ")":
                 self.pop_operators_inside_parenthesis()
 
-            elif token.isdigit():
+            elif token.isdigit() or token.isalpha():
                 self.postfix_notation.append(token)
             
             else:
                 raise Exception(f"{token} not implemented")
 
             if verbose: print(self.postfix_notation, self.operator_stack)
-        self.postfix_notation.extend(self.operator_stack)
+        self.postfix_notation.extend(self.operator_stack[::-1])
     
     def pop_operators_inside_parenthesis(self) -> None:
         assert "(" in self.operator_stack, "Mismatched parenthesis"
@@ -57,11 +60,12 @@ class Post_Fixer:
             if not self.operator_stack:
                 break
 
-            precendence_added_operator : int = self.OPERATOR_PRECEDENCES[added_operator]
+            
             top_operator = self.operator_stack[-1]
             if top_operator == "(":
                 break
-
+            
+            precendence_added_operator : int = self.OPERATOR_PRECEDENCES[added_operator]
             precendence_top_operator : int = self.OPERATOR_PRECEDENCES[top_operator]
 
             if precendence_top_operator < precendence_added_operator:
@@ -80,5 +84,32 @@ class Post_Fixer:
     def __repr__(self) -> str:
         return f"{self.postfix_notation}"
 
-pf = Post_Fixer("1 + ( 2 * 2 )")
-print(pf)
+def create_tree(post_fix_notation : list[str]) -> Tree:
+    OPERATOR_NODES = {"+" : ADD, "-" : SUB, "*" : MUL, "/" : DIV}
+    node_stack : list[NODE] = []
+    for token in post_fix_notation:
+        if is_operator(token):
+            right_hand_side = node_stack.pop()
+            left_hand_side = node_stack.pop()
+            operator_node = OPERATOR_NODES[token]()
+            operator_node.left = left_hand_side
+            operator_node.right = right_hand_side
+            node_stack.append(operator_node)
+
+        if token.isdigit():
+            int_token = int(token)
+            node_stack.append(CONST(int_token))
+        
+        if token.isalpha():
+            node_stack.append(VAR(token))
+        
+    return Tree(node_stack[0])
+
+def main():
+    post_fixer_1 = Post_Fixer("2 * ( 2 + x )")
+    test_tree = create_tree(post_fixer_1.postfix_notation)
+    print(test_tree)
+
+if __name__ == "__main__":
+    main()
+
