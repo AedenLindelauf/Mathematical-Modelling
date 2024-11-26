@@ -85,7 +85,7 @@ class Post_Fixer:
         return f"{self.postfix_notation}"
 
 def create_tree(post_fix_notation : list[str]) -> Tree:
-    OPERATOR_NODES = {"+" : ADD, "-" : SUB, "*" : MUL, "/" : DIV}
+    OPERATOR_NODES = {"+" : ADD, "-" : SUB, "*" : MUL, "/" : DIV, "^" : POW}
     node_stack : list[NODE] = []
     for token in post_fix_notation:
         if is_operator(token):

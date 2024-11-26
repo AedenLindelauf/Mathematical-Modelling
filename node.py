@@ -67,6 +67,21 @@ class DIV(BINARY):
 
             self.left, self.right = left, right
 
+class POW(BINARY):
+    def __str__(self): 
+        res = ""
+
+        if isinstance(self.left, (CONST, VAR) ):
+            res += f"{self.left.__str__()}"
+        else: res += f"( {self.left.__str__()} )"
+        
+        res += " ^ "
+
+        if isinstance(self.right, (CONST, VAR) ):
+            res += f"{self.right.__str__()}"
+        else: res += f"( {self.right.__str__()} )"
+
+        return res
 
 
 # Variables
