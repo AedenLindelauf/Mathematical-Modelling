@@ -1,15 +1,6 @@
+from tree import Tree
 from node import *
-
-class Tree:
-    def __init__(self, root: NODE):
-        self.root = root
-
-    def __str__(self):
-        return self.root.__str__()
-    
-    def simplify(self): 
-        self.root.simplify()
-
+from shunting_yard import *
 
 if __name__ == "__main__":
     root = ADD()
@@ -30,3 +21,7 @@ if __name__ == "__main__":
     print(f"Original expression:\t {T}")
     T.simplify()
     print(f"Simplified expression:\t {T}")
+
+    post_fixer_1 = Post_Fixer("2 * ( 2 + x )")
+    test_tree = create_tree(post_fixer_1.postfix_notation)
+    print(test_tree)

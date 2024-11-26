@@ -2,6 +2,7 @@
 class NODE:
     def __init__(self): pass
 
+
 # Operands
 class BINARY(NODE):
     def __init__(self, left = None, right = None):
@@ -16,6 +17,7 @@ class BINARY(NODE):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
 
+
 class ADD(BINARY):
     def __str__(self): return super().__str__("+")
 
@@ -23,7 +25,21 @@ class SUB(BINARY):
     def __str__(self): return super().__str__("-")
 
 class MUL(BINARY):
-    def __str__(self): return super().__str__("*")
+    def __str__(self): 
+        res = ""
+
+        if isinstance(self.left, (CONST, VAR) ):
+            res += f"{self.left.__str__()}"
+        else: res += f"( {self.left.__str__()} )"
+        
+        res += " * "
+
+        if isinstance(self.right, (CONST, VAR) ):
+            res += f"{self.right.__str__()}"
+        else: res += f"( {self.right.__str__()} )"
+
+        return res
+
 
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"

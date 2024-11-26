@@ -1,4 +1,4 @@
-from main import Tree
+from tree import Tree
 from node import *
 
 def is_function(token : str) -> bool:
@@ -104,12 +104,3 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
             node_stack.append(VAR(token))
         
     return Tree(node_stack[0])
-
-def main():
-    post_fixer_1 = Post_Fixer("2 * ( 2 + x )")
-    test_tree = create_tree(post_fixer_1.postfix_notation)
-    print(test_tree)
-
-if __name__ == "__main__":
-    main()
-
