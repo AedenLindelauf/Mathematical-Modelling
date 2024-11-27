@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # test_tree = create_tree(post_fixer_1.postfix_notation)
     # print(test_tree)
 
-    expr = "2 * ( 1 * x + y + 0 ) ^ 2 * 1 * ( ( z / 1 ) ^ 1 )"
+    expr = "( 2 - 1 ) ^ a * ( 0 ^ 5 ) * ( 1 * x + y + 0 ) ^ 2 * 1 * ( ( z / 1 ) ^ 1 )"
 
     post_fixer_2 = Post_Fixer(expr)
     test_tree = create_tree(post_fixer_2.postfix_notation)
