@@ -9,7 +9,6 @@ class Tree:
     
     def simplify(self): 
         self.preprocess(self.root)
-        print(self)
         self.root.simplify()
 
     def preprocess(self, node):

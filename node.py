@@ -36,7 +36,7 @@ class SUB(BINARY):
 class MUL(BINARY):
     def __str__(self): 
         res = ""
-
+        
         if isinstance(self.left, (CONST, VAR) ):
             res += f"{self.left.__str__()}"
         else: res += f"( {self.left.__str__()} )"
@@ -60,7 +60,7 @@ class MUL(BINARY):
         
         if isinstance(self.left, CONST) and isinstance(self.right, MUL):
             if isinstance(self.right.left, CONST):
-                self.left = self.left.value * self.right.left.value
+                self.left.value = self.left.value * self.right.left.value
                 self.right = self.right.right
 
 class DIV(BINARY):
