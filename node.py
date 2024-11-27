@@ -21,6 +21,15 @@ class BINARY(NODE):
 class ADD(BINARY):
     def __str__(self): return super().__str__("+")
 
+    def simplify(self):            
+        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
+        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+
+        if isinstance(self.left, CONST) and isinstance(self.right, CONST):
+            res = self.left.value + self.right.value
+            self.__class__ = CONST
+            self.value = res
+
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
 
@@ -39,7 +48,20 @@ class MUL(BINARY):
         else: res += f"( {self.right.__str__()} )"
 
         return res
-
+    
+    def simplify(self):
+        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
+        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+        
+        if isinstance(self.left, CONST) and isinstance(self.right, CONST):
+            res = self.left.value * self.right.value
+            self.__class__ = CONST
+            self.value = res
+        
+        if isinstance(self.left, CONST) and isinstance(self.right, MUL):
+            if isinstance(self.right.left, CONST):
+                self.left = self.left.value * self.right.left.value
+                self.right = self.right.right
 
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
