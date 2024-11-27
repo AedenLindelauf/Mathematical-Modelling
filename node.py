@@ -17,6 +17,21 @@ class BINARY(NODE):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
 
+    def _check_identity_element(self, a: NODE, b: NODE, element: int) -> bool:
+        # If zero is added, ignore it.
+        if isinstance(a, CONST) and (a.value == element):
+            if isinstance(b, (CONST, VAR) ):
+                self.__class__ = b.__class__
+                self.value = b.value
+
+            else: # Binary operation
+                self.__class__ = b.__class__
+                self.left = b.left
+                self.right = b.right
+            
+            return True
+        return False
+
 
 class ADD(BINARY):
     def __str__(self): return super().__str__("+")
@@ -25,10 +40,19 @@ class ADD(BINARY):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
 
+        # Add constants.
         if isinstance(self.left, CONST) and isinstance(self.right, CONST):
             res = self.left.value + self.right.value
             self.__class__ = CONST
             self.value = res
+
+        # Maybe is checking the right branch unnecessary because of preprocessing.
+        # Check whether 0 is added.
+        if not self._check_identity_element(self.left, self.right, 0):
+            self._check_identity_element(self.right, self.left, 0)
+
+        # Check for adding polynomials.
+
 
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
@@ -63,6 +87,12 @@ class MUL(BINARY):
                 self.left.value = self.left.value * self.right.left.value
                 self.right = self.right.right
 
+        # Maybe is checking the right branch unnecessary because of preprocessing.
+        # Check whether 0 is added.
+        if not self._check_identity_element(self.left, self.right, 1):
+            self._check_identity_element(self.right, self.left, 1)
+
+
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
@@ -89,6 +119,10 @@ class DIV(BINARY):
 
             self.left, self.right = left, right
 
+        # Check whether divided by 1.
+        self._check_identity_element(self.right, self.left, 1)
+
+
 class POW(BINARY):
     def __str__(self): 
         res = ""
@@ -105,6 +139,12 @@ class POW(BINARY):
 
         return res
 
+    def simplify(self):
+        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
+        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+    
+        # Check whether to the power of 1.
+        self._check_identity_element(self.right, self.left, 1)
 
 # Variables
 class VAR(NODE):
