@@ -146,6 +146,8 @@ class DIV(BINARY):
         # Check whether divided by 1.
         self._check_identity_element(self.right, self.left, 1)
 
+        if isinstance(self.right, CONST) and (self.right.value == 0): raise Exception("division by 0 undefined")
+
 
 class POW(BINARY):
     def __str__(self): 
