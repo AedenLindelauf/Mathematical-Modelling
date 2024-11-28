@@ -10,6 +10,10 @@ class Tree:
     def simplify(self): 
         self.preprocess(self.root)
         self.root.simplify()
+    
+    def differentiate(self, variable: str = "x"):
+        self.preprocess(self.root)
+        return Tree(self.root.differentiate(variable))
 
     def preprocess(self, node):
         if isinstance(node, (CONST, VAR) ) or (node is None): return

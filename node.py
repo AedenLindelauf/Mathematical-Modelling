@@ -17,6 +17,11 @@ class BINARY(NODE):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
 
+    def differentiate(self, variable):
+
+        if (self.left is not None) and isinstance(self.left, BINARY): self.left.differentiate(variable)
+        if (self.right is not None) and isinstance(self.left, BINARY): self.right.differentiate(variable)
+
     def _check_identity_element(self, a: NODE, b: NODE, element: int) -> bool:
         # If zero is added, ignore it.
         if isinstance(a, CONST) and (a.value == element):
@@ -53,6 +58,10 @@ class ADD(BINARY):
 
         # Check for adding polynomials.
 
+    def differentiate(self, variable: str) -> BINARY:
+        new_left = self.left.differentiate(variable)
+        new_right = self.right.differentiate(variable)
+        return ADD(new_left, new_right)
 
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
@@ -66,6 +75,11 @@ class SUB(BINARY):
             res = self.left.value - self.right.value
             self.__class__ = CONST
             self.value = res
+
+    def differentiate(self, variable: str):
+        new_left = self.left.differentiate(variable)
+        new_right = self.right.differentiate(variable)
+        return SUB(new_left, new_right)
 
 class MUL(BINARY):
     def __str__(self): 
@@ -113,6 +127,17 @@ class MUL(BINARY):
             self.__class__ = CONST
             self.value = 0 
             return
+    
+    # Applying the product rule (f * g)' = f * g' + f' * g
+    def differentiate(self, variable: str):
+        # First we assign some variables
+        f, g = self.left, self.right
+        f_derivative = self.left.differentiate(variable)
+        g_derivative = self.right.differentiate(variable)
+        
+        new_left = MUL(f, g_derivative)
+        new_right = MUL(f_derivative, g)
+        return ADD(new_left, new_right)
 
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
@@ -146,6 +171,17 @@ class DIV(BINARY):
         # Check whether divided by 1.
         self._check_identity_element(self.right, self.left, 1)
 
+    # We apply the quotient rule (f / g)'= (f' * g - f * g') / ( g ^ 2)
+    def differentiate(self, variable):
+        f = self.left
+        g = self.right
+        f_derivative = f.differentiate(variable)
+        g_derivative = g.differentiate(variable)
+        new_right = POW(g, 2)
+        new_left_left = MUL(f_derivative, g)
+        new_left_right = MUL(f, g_derivative)
+        new_left = SUB(new_left_left, new_left_right)
+        return DIV(new_left, new_right)
 
 class POW(BINARY):
     def __str__(self): 
@@ -183,6 +219,25 @@ class POW(BINARY):
             self.__class__ = CONST
             self.value = 1
 
+    # Apply power rule if exponent is constant, else raise error not implemented
+    def differentiate(self, variable: str):
+        if isinstance(self.left, CONST) and ( (self.left.value == 0) and (self.right.value == 0)):
+            raise Exception("0^0 undefined!")
+        # Power rule: (a^b)' = a' * b * a ^ (b - 1)
+        elif isinstance(self.right, CONST):
+            a = self.left
+            b = self.right
+            new_b = CONST(b.value - 1)
+            a_derivative = self.left.differentiate(variable)
+            new_left = MUL(a_derivative, b)
+            new_right = POW(a, new_b)
+            return MUL(new_left, new_right)  
+        else:
+            raise Exception("Not implemented")
+
+        
+
+
 
 # Variables
 class VAR(NODE):
@@ -191,8 +246,13 @@ class VAR(NODE):
     
     def __str__(self):
         return self.value
-
-
+    
+    # The derivative of a variable is 1 only if we differentiate with respect to that variable.
+    def differentiate(self, variable: str) -> BINARY:
+        if self.value == variable:
+            return CONST(1)
+        else:
+            return CONST(0)
 
 
 # Constants
@@ -202,3 +262,7 @@ class CONST(NODE):
 
     def __str__(self):
         return str(self.value)
+    
+    # The derivative of a constant is always 0
+    def differentiate(self, variable: str) -> BINARY:
+        return CONST(0)
