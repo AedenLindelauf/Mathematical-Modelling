@@ -45,6 +45,7 @@ class ADD(BINARY):
             res = self.left.value + self.right.value
             self.__class__ = CONST
             self.value = res
+            return
 
         # Maybe is checking the right branch unnecessary because of preprocessing.
         # Check whether 0 is added.
@@ -142,6 +143,7 @@ class DIV(BINARY):
             right = self.right.left
 
             self.left, self.right = left, right
+
 
         # Check whether divided by 1.
         self._check_identity_element(self.right, self.left, 1)
