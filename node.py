@@ -32,7 +32,6 @@ class BINARY(NODE):
             return True
         return False
 
-
 class ADD(BINARY):
     def __str__(self): return super().__str__("+")
 
@@ -100,11 +99,6 @@ class MUL(BINARY):
                 self.right = self.right.right
                 return
 
-        # Maybe is checking the right branch unnecessary because of preprocessing.
-        # Check whether multiplied by 1.
-        if not self._check_identity_element(self.left, self.right, 1):
-            self._check_identity_element(self.right, self.left, 1)
-
         if isinstance(self.left, CONST) and (self.left.value == 0):
             self.__class__ = CONST
             self.value = 0
@@ -149,7 +143,6 @@ class DIV(BINARY):
         self._check_identity_element(self.right, self.left, 1)
 
         if isinstance(self.right, CONST) and (self.right.value == 0): raise Exception("division by 0 undefined")
-
 
 class POW(BINARY):
     def __str__(self): 
@@ -216,6 +209,14 @@ class POW(BINARY):
             self.left.simplify()
             self.right.simplify()
             return
+        
+
+        # Check the case where we have (a^b)^c = a^(b c)
+        if isinstance(self.left, POW):
+            a, b, c = self.left.left, self.left.right, self.right
+            self.left = a
+            self.right = MUL(b, c)
+
 
 # Variables
 class VAR(NODE):
