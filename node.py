@@ -187,6 +187,35 @@ class POW(BINARY):
             self.__class__ = CONST
             self.value = 1
 
+        if isinstance(self.left, MUL):
+            # Wait until the point where the multiplications end.
+            def recurse(node, p):
+                if isinstance(node, (VAR, CONST) ) or (node is None): return
+                if not isinstance(node.left, MUL):
+                    left = node.left
+                    node.left = POW(left, p)
+                else: recurse(node.left, p)
+                
+                if not isinstance(node.right, MUL):
+                    right = node.right
+                    node.right = POW(right, p)
+                else: recurse(node.right, p)
+
+            recurse(self.left, self.right)
+            
+            left = self.left
+            self.__class__ = left.__class__
+
+            if isinstance(self.__class__, (VAR, CONST) ):
+                self.value = left.value
+            else:
+                self.left = left.left
+                self.right = left.right
+
+
+            self.left.simplify()
+            self.right.simplify()
+            return
 
 # Variables
 class VAR(NODE):

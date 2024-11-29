@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # test_tree = create_tree(post_fixer_2.postfix_notation)
     # test_tree.simplify()
     
-    expr = "1 + 0"
+    expr = "( 2 * x * ( y / z ) ) ^ 2"
     post_fixer_3 = Post_Fixer(expr)
     test_tree = create_tree(post_fixer_3.postfix_notation)
     test_tree.simplify()
