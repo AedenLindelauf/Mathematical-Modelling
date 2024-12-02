@@ -12,11 +12,11 @@ class Tree:
         self.root.simplify()
     
     def differentiate(self, variable: str = "x"):
-        self.preprocess(self.root)
+        # self.preprocess(self.root)
         return Tree(self.root.differentiate(variable))
 
     def preprocess(self, node):
-        if isinstance(node, CONST ) or (node is None): return
+        if isinstance(node, (CONST, int) ) or (node is None): return
 
         # This is basically to ensure the situation that 2*x + x = 2*x + 1*x = (2+1) * x
         if isinstance(node , VAR):

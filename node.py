@@ -55,6 +55,11 @@ class ADD(BINARY):
         # Check whether 0 is added.
         if not self._check_identity_element(self.left, self.right, 0):
             self._check_identity_element(self.right, self.left, 0)
+    
+    def differentiate(self, variable: str):
+        new_left = self.left.differentiate(variable)
+        new_right = self.right.differentiate(variable)
+        return ADD(new_left, new_right)
 
 
 class SUB(BINARY):

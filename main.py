@@ -20,11 +20,12 @@ if __name__ == "__main__":
     post_fixer_diff_test = Post_Fixer(primary_expr)
     test_tree_diff = create_tree(post_fixer_diff_test.postfix_notation)
     derivative_tree = test_tree_diff.differentiate()
+    derivative_tree.simplify()
 
-    test_expr = "( 1 + x )"
+    test_expr = "( 0 * x )"
     post_fixer_test = Post_Fixer(test_expr)
     test_tree = create_tree(post_fixer_test.postfix_notation)
-    
+    test_tree.simplify()
     
     
     
