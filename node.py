@@ -37,7 +37,6 @@ class BINARY(NODE):
             return True
         return False
 
-
 class ADD(BINARY):
     def __str__(self): return super().__str__("+")
 
@@ -50,18 +49,13 @@ class ADD(BINARY):
             res = self.left.value + self.right.value
             self.__class__ = CONST
             self.value = res
+            return
 
         # Maybe is checking the right branch unnecessary because of preprocessing.
         # Check whether 0 is added.
         if not self._check_identity_element(self.left, self.right, 0):
             self._check_identity_element(self.right, self.left, 0)
 
-        # Check for adding polynomials.
-
-    def differentiate(self, variable: str) -> BINARY:
-        new_left = self.left.differentiate(variable)
-        new_right = self.right.differentiate(variable)
-        return ADD(new_left, new_right)
 
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
@@ -70,7 +64,7 @@ class SUB(BINARY):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
 
-        # Add constants.
+        # Substract constants.
         if isinstance(self.left, CONST) and isinstance(self.right, CONST):
             res = self.left.value - self.right.value
             self.__class__ = CONST
@@ -101,28 +95,27 @@ class MUL(BINARY):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
         
+        # Multiplication of two constants.
         if isinstance(self.left, CONST) and isinstance(self.right, CONST):
             res = self.left.value * self.right.value
             self.__class__ = CONST
             self.value = res
             return
         
+        # Convert a * (b * x) => (a * b) * x 
         if isinstance(self.left, CONST) and isinstance(self.right, MUL):
             if isinstance(self.right.left, CONST):
                 self.left.value = self.left.value * self.right.left.value
                 self.right = self.right.right
                 return
 
-        # Maybe is checking the right branch unnecessary because of preprocessing.
-        # Check whether multiplied by 1.
-        if not self._check_identity_element(self.left, self.right, 1):
-            self._check_identity_element(self.right, self.left, 1)
-
+        # Convert 0 * a => 0
         if isinstance(self.left, CONST) and (self.left.value == 0):
             self.__class__ = CONST
             self.value = 0
             return 
 
+        # Convert a * 0 => 0
         if isinstance(self.right, CONST) and (self.right.value == 0):
             self.__class__ = CONST
             self.value = 0 
@@ -160,7 +153,7 @@ class DIV(BINARY):
 
             else: self.right = MUL(lr, r)
         
-        # Dividing by a fraction is multiplying by the reciprocal.
+        # a / ( b / c ) => (a * c) / b
         if isinstance(self.right, DIV):
 
             left = MUL(self.left, self.right.right)
@@ -168,8 +161,12 @@ class DIV(BINARY):
 
             self.left, self.right = left, right
 
+
         # Check whether divided by 1.
         self._check_identity_element(self.right, self.left, 1)
+
+        # Error check division by 0.
+        if isinstance(self.right, CONST) and (self.right.value == 0): raise Exception("division by 0 undefined")
 
     # We apply the quotient rule (f / g)'= (f' * g - f * g') / ( g ^ 2)
     def differentiate(self, variable):
@@ -182,6 +179,7 @@ class DIV(BINARY):
         new_left_right = MUL(f, g_derivative)
         new_left = SUB(new_left_left, new_left_right)
         return DIV(new_left, new_right)
+        
 
 class POW(BINARY):
     def __str__(self): 
@@ -218,6 +216,44 @@ class POW(BINARY):
         elif isinstance(self.right, CONST) and ( self.right.value == 0 ):
             self.__class__ = CONST
             self.value = 1
+
+        # (a ... b) ^ c = (a ^ c) * ... * (b ^ c) 
+        if isinstance(self.left, MUL):
+            # Wait until the point where the multiplications end.
+            def recurse(node, p):
+                if isinstance(node, (VAR, CONST) ) or (node is None): return
+                if not isinstance(node.left, MUL):
+                    left = node.left
+                    node.left = POW(left, p)
+                else: recurse(node.left, p)
+                
+                if not isinstance(node.right, MUL):
+                    right = node.right
+                    node.right = POW(right, p)
+                else: recurse(node.right, p)
+
+            recurse(self.left, self.right)
+            
+            left = self.left
+            self.__class__ = left.__class__
+
+            if isinstance(self.__class__, (VAR, CONST) ):
+                self.value = left.value
+            else:
+                self.left = left.left
+                self.right = left.right
+
+
+            self.left.simplify()
+            self.right.simplify()
+            return
+        
+
+        # Check the case where we have (a^b)^c = a^(b * c)
+        if isinstance(self.left, POW):
+            a, b, c = self.left.left, self.left.right, self.right
+            self.left = a
+            self.right = MUL(b, c)
 
     # Apply power rule if exponent is constant, else raise error not implemented
     def differentiate(self, variable: str):
