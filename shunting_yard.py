@@ -62,18 +62,15 @@ class Post_Fixer:
         
         self.operator_count : int = 0
 
-        for symbol_index, symbol in enumerate(expression_infix_notation):
+        for symbol in expression_infix_notation:
             #check if it is possible to clean the if statements
             if symbol.isspace():
                 continue
 
             elif symbol.isdigit() or symbol == ".":
-                assert self.too_many_operators(), f"Cannot start new number without an operation."
                 current_number_token.append(symbol)
                 continue
 
-            
-            
             if current_number_token:
                 self.postfix_notation.append(''.join(current_number_token))
                 current_number_token = []
@@ -83,9 +80,6 @@ class Post_Fixer:
                 self.add_to_operator_stack("*")
 
             elif is_operator(symbol):
-                assert symbol_index > 0, f"You cannot start with a binary operation except for (-)."
-                assert symbol_index < len(expression_infix_notation) - 1, f"You cannot end with a binary operation."
-                assert not self.too_many_operators(), f"You cannot follow a binary operation with another one except for (-)."
                 self.add_to_operator_stack(symbol)
 
             elif is_function(symbol):
@@ -94,8 +88,6 @@ class Post_Fixer:
             elif symbol == "(":
                 self.open_parenthesis()
                 
-
-
             elif symbol == ")":
                 self.pop_operators_inside_parenthesis()
 
@@ -113,7 +105,6 @@ class Post_Fixer:
         if current_number_token:
             self.postfix_notation.append(''.join(current_number_token))
 
-        assert "(" not in self.operator_stack, "Mismatched parenthesis"
         self.postfix_notation.extend(self.operator_stack[::-1])
     
     def open_parenthesis(self) -> None:
@@ -135,7 +126,6 @@ class Post_Fixer:
         self.postfix_notation.append(variable_name)
         
     def pop_operators_inside_parenthesis(self) -> None:
-        assert "(" in self.operator_stack, "Mismatched parenthesis"
         # assert self.operator_stack[-1] != "(", "Empty parenthesis" has bug with (a)
 
         while True:
