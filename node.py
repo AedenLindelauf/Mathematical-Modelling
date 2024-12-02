@@ -117,6 +117,25 @@ class MUL(BINARY):
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
+    def count_vars(self):
+        pass
+    
+    #def divide_by_integer_const(self):
+        # Call only when actually dividing by an integer constant
+        # We are in the situation where self.left is binary and 
+
+    def divide_long(self):
+        # First check whether long division is possible on this division node
+
+        #if (self.left is not None) and isinstance(self.left, BINARY): pass
+        #if (self.right is not None) and isinstance(self.right, BINARY): pass
+
+
+
+
+        pass
+
+
     def simplify(self):
         if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
         if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
