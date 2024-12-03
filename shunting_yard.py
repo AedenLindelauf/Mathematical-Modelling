@@ -178,7 +178,7 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
             operator_node.right = right_hand_side
             node_stack.append(operator_node)
 
-        if token.isdigit():
+        if token.isdigit(): #only accepts strings containing digits not "-1" or "1.0"
             int_token = int(token)
             node_stack.append(CONST(int_token))
         
