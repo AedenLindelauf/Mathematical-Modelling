@@ -67,7 +67,7 @@ class Post_Fixer:
             if symbol.isspace():
                 continue
 
-            elif symbol.isdigit() or symbol == ".":
+            elif symbol.isdigit() or symbol == ".": # accepts to many points
                 current_number_token.append(symbol)
                 continue
 
