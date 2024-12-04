@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # test_tree = create_tree(post_fixer_1.postfix_notation)
     # print(test_tree)
 
-    expr = "( 8 / 4 )"
+    expr = "3 * xyzabc5def / 4"
 
     converter = SymbolicFunctionConverter()
     # Validate the function
