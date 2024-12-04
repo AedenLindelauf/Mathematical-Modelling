@@ -4,12 +4,8 @@ from node import *
 from shunting_yard import *
 
 if __name__ == "__main__":
-    
-    # post_fixer_1 = Post_Fixer("2 ^ ( 2 + x ^ 2 * y )")
-    # test_tree = create_tree(post_fixer_1.postfix_notation)
-    # print(test_tree)
 
-    expr = "3 * xyzabc5def / 4"
+    expr = "x + y * 0 + 6 / 2 + 8 * 4 * 1 * 15 + xyz^2 + (x / y) / (a / b) + x / 1"
 
     converter = SymbolicFunctionConverter()
     # Validate the function
@@ -24,6 +20,8 @@ if __name__ == "__main__":
         # Convert to tree
         post_fixer_2 = Post_Fixer(standardized_expr)
         test_tree = create_tree(post_fixer_2.postfix_notation)
+        # Convert to common-operator-based structure
+        test_tree.convert_to_common_operator_structure()
         # Simplify
         test_tree.simplify()
         print(f"Output:\t {test_tree}")

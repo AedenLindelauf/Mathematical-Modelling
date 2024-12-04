@@ -89,11 +89,7 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
     node_stack : list[NODE] = []
     for token in post_fix_notation:
         if is_operator(token):
-            right_hand_side = node_stack.pop()
-            left_hand_side = node_stack.pop()
-            operator_node = OPERATOR_NODES[token]()
-            operator_node.left = left_hand_side
-            operator_node.right = right_hand_side
+            operator_node = OPERATOR_NODES[token](node_stack.pop(), node_stack.pop()) # Need to feed the children into the initialization
             node_stack.append(operator_node)
 
         if token.isdigit():

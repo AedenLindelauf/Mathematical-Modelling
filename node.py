@@ -1,20 +1,25 @@
 # Parent class for inheritance.
 class NODE:
-    def __init__(self): pass
+    def __init__(self, *args): 
+        self.children = [arg for arg in args]
+
+    def simplify():
+        pass
 
 
-# Operands
+# Operators
 class BINARY(NODE):
     def __init__(self, left = None, right = None):
-        self.left, self.right = left, right
+        super().__init__(right, left) # Need to switch them around because for some reason python switches them around in the iterator
 
     def __str__(self, op: str):
-        return f"{self.left.__str__()} {op} {self.right.__str__()}"
+        return f"{self.children[0].__str__()} {op} {self.children[1].__str__()}"
     
-    def simplify(self):
-        # Just some random code to check if the code works.
-        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
-        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+    def convert_to_common_operator_structure(self):
+        if isinstance(self.children[0], (BINARY, FLUID)):
+            self.children[0].convert_to_common_operator_structure()
+        if isinstance(self.children[1], (BINARY, FLUID)):
+            self.children[1].convert_to_common_operator_structure()
 
     def _check_identity_element(self, a: NODE, b: NODE, element: int) -> bool:
         # If zero is added, ignore it.
@@ -25,141 +30,88 @@ class BINARY(NODE):
 
             else: # Binary operation
                 self.__class__ = b.__class__
-                self.left = b.left
-                self.right = b.right
+                self.children[0] = b.children[0]
+                self.children[1] = b.children[1]
             
             return True
         return False
-        
-    def print_all_paths_to_nodes(self) -> list[int]:
-        l = []
-        print("hello")
-        if isinstance(self, (CONST, VAR)): 
-            return l
-        
-        def descend(node: NODE, lst: list[int]):
-            if isinstance(node, (CONST, VAR)):
-                print("Adding list ", lst, " because found node ", node.value)
-                l.append(lst)
-            if isinstance(node, BINARY): 
-                lst1 = lst.copy() + [0]
-                lst2 = lst.copy() + [1]
-                descend(node.left, lst1)
-                print("Descending left, with list ", lst1, " because found node", node.__str__)
-                descend(node.right, lst2)
-                print("Descending right, with list ", lst2, " because found node", node.__str__)
-        
-        if isinstance(self, BINARY):
-            descend(self.left, [0])
-            descend(self.right, [1])
-
-        print(l)
-
-        return l
     
-def find_first(node: NODE, type, exclude = ()) -> list[int]:
-    if isinstance(node, type):
-        return []
-    if isinstance(node, (CONST, VAR)):
-        return [-1]
-    if exclude != () and isinstance(node, exclude):
-        return [-1]
+class FLUID(NODE):
+    def __init__(self, *args):
+        children = [arg for arg in args]
+        if len(children) < 2: raise Exception("Fluid nodes need two or more operands!") # Not really necessary, just a sanity check
+        super().__init__(*children)
+
+    # In this function we find all the "adjacent" similar operators (so all +'s or *'s)
+    def find_all_similar_adjacent_operators(self) -> list[NODE]:
+        subtrees = [self]
+        def descend(node: NODE):
+            if isinstance(node, self.__class__):
+                subtrees.append(node)
+                for child in node.children:
+                    descend(child)
+
+        for child in self.children:
+            descend(child)
         
-    def descend(node: NODE, lst: list[int]):
-        if isinstance(node, type):
-            return lst
-        if isinstance(node, exclude):
-            return
-        if isinstance(node, BINARY): # This assumes that node is not in exclude
-            lst1 = lst.copy() + [0]
-            lst2 = lst.copy() + [1]
-            l = descend(node.left, lst1)
-            if l is not None:
-                return l
-            r = descend(node.right, lst2)
-            if r is not None:
-                return r
-
-    if isinstance(node, BINARY):
-        l = descend(node.left, [0])
-        if l is not None: return l
-        r = descend(node.right, [1])
-        if r is not None: return r
-            
-    return [-1]
-
-def find_all(node: NODE, type, exclude: tuple = ()) -> list[list[int]]:
-    paths = []
-    if isinstance(node, type):
-        return paths
-    if isinstance(node, (CONST, VAR)):
-        return [[-1]]
-    if exclude is not () and isinstance(node, exclude):
-        return [[-1]]
+        return subtrees
+    
+    # Here the actual transmutation of the tree happens
+    def convert_to_common_operator_structure(self):
+        subtrees = self.find_all_similar_adjacent_operators()
+        children_changed = 0
+        original_number_of_children = len(self.children)
+        for tree in subtrees:
+            for i in range(len(tree.children)):
+                if not isinstance(tree.children[i], self.__class__):
+                    if children_changed < original_number_of_children:
+                        self.children[children_changed] = tree.children[i]
+                        children_changed += 1
+                    else:
+                        self.children.append(tree.children[i])
         
-    def descend(node: NODE, lst: list[int]):
-        if isinstance(node, type):
-            paths.append(lst)
-            return
-        if isinstance(node, exclude):
-            return
-        if isinstance(node, BINARY): # This assumes that node is not in exclude
-            lst1 = lst.copy() + [0]
-            lst2 = lst.copy() + [1]
-            descend(node.left, lst1)
-            descend(node.right, lst2)
+        for child in self.children:
+            if isinstance(child, (BINARY, FLUID) ):
+                child.convert_to_common_operator_structure() # Top-down approach
 
-    if isinstance(node, BINARY):
-        descend(node.left, [0])
-        descend(node.right, [1])
-            
-    return paths
 
-def find_all_tiered(node: NODE, type, exclude: tuple = ()) -> list[list[int]]:
-    paths = []
-    if isinstance(node, type):
-        return paths
-    if isinstance(node, (CONST, VAR)):
-        return [[-1]]
-    if exclude is not () and isinstance(node, exclude):
-        return [[-1]]
+
+class ADD(FLUID):
+    def __init__(self, *args):
+        super().__init__(*args)
         
-    def descend(node: NODE, lst: list[int]):
-        if isinstance(node, type):
-            paths.append(lst)
-            return
-        if isinstance(node, exclude):
-            return
-        if isinstance(node, BINARY): # This assumes that node is not in exclude
-            lst1 = lst.copy() + [0]
-            lst2 = lst.copy() + [1]
-            descend(node.left, lst1)
-            descend(node.right, lst2)
+    def __str__(self): 
+        string = ""
+        for child in self.children:
+            string += child.__str__()
+            string +=  " + "
+        return string[:-3]
 
-    if isinstance(node, BINARY):
-        descend(node.left, [0])
-        descend(node.right, [1])
-            
-    return paths
-
-
-class ADD(BINARY):
-    def __str__(self): return super().__str__("+")
-
-    def simplify(self):            
-        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
-        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+    def simplify(self):
+        # If the child has children, simplify the children
+        for child in self.children:
+            if isinstance(child, NODE) and (child is not None) and len(child.children) > 1: 
+                child.simplify()
 
         # Add constants.
-        if isinstance(self.left, CONST) and isinstance(self.right, CONST):
-            res = self.left.value + self.right.value
-            self.__class__ = CONST
-            self.value = res
+        list_of_constants = [i for i in range(len(self.children)) if isinstance(self.children[i], CONST)]
+        if (len(list_of_constants) > 1):
+            res = sum([self.children[i].value for i in list_of_constants])
+            if len(list_of_constants) == len(self.children):
+                self.__class__ = CONST
+                self.value = res
+            elif len(list_of_constants) <= len(self.children) - 1:
+                first_constant = list_of_constants.pop(0) # Possible because len(list_of_constants) >= 2
+                self.children[first_constant].value = res
+                list_of_constants.reverse()
+                for index in list_of_constants: self.children.pop(index)
 
-        # Maybe is checking the right branch unnecessary because of preprocessing.
-        # Check whether 0 is added.
-        if not self._check_identity_element(self.left, self.right, 0):
-            self._check_identity_element(self.right, self.left, 0)
+        # Check for adding a zero
+        for child in self.children:
+            if isinstance(child, CONST) and (child.value == 0):
+                self.children.remove(child)
+                if len(self.children) == 1: # If there is only one child left we need to do something
+                    self = self.children[0]
 
         # Check for adding polynomials.
 
@@ -167,181 +119,130 @@ class ADD(BINARY):
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
 
-    def simplify(self):            
-        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
-        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+    def simplify(self):
+        if (self.children[0] is not None) and isinstance(self.children[0], BINARY): self.children[0].simplify()
+        if (self.children[1] is not None) and isinstance(self.children[1], BINARY): self.children[1].simplify()
 
         # Add constants.
-        if isinstance(self.left, CONST) and isinstance(self.right, CONST):
-            res = self.left.value - self.right.value
+        if isinstance(self.children[0], CONST) and isinstance(self.children[1], CONST):
+            res = self.children[0].value - self.children[1].value
             self.__class__ = CONST
             self.value = res
 
-class MUL(BINARY):
-    def __str__(self): 
-        res = ""
-        
-        if isinstance(self.left, (CONST, VAR) ):
-            res += f"{self.left.__str__()}"
-        else: res += f"( {self.left.__str__()} )"
-        
-        res += " * "
+class MUL(FLUID):
+    def __init__(self, *args):
+        super().__init__(*args)
 
-        if isinstance(self.right, (CONST, VAR) ):
-            res += f"{self.right.__str__()}"
-        else: res += f"( {self.right.__str__()} )"
+    def __str__(self):
+        string = ""
 
-        return res
+        for child in self.children:
+            if isinstance(child, (CONST, VAR) ):
+                string += f"{child.__str__()}"
+            else: string += f"( {child.__str__()} )"
+            
+            string += " * "
+
+        return string[:-3]
+    
     
     def simplify(self):
-        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
-        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
-        
-        if isinstance(self.left, CONST) and isinstance(self.right, CONST):
-            res = self.left.value * self.right.value
-            self.__class__ = CONST
-            self.value = res
-            return
-        
-        if isinstance(self.left, CONST) and isinstance(self.right, MUL):
-            if isinstance(self.right.left, CONST):
-                self.left.value = self.left.value * self.right.left.value
-                self.right = self.right.right
-                return
+        # If the child has children, simplify the children
+        for child in self.children:
+            if isinstance(child, NODE) and (child is not None) and len(child.children) > 1: # i.e. the child is not a leaf
+                child.simplify()
 
-        # Maybe is checking the right branch unnecessary because of preprocessing.
-        # Check whether multiplied by 1.
-        if not self._check_identity_element(self.left, self.right, 1):
-            self._check_identity_element(self.right, self.left, 1)
+        # Multiply constants
+        list_of_constants = [i for i in range(len(self.children)) if isinstance(self.children[i], CONST)]
+        if (len(list_of_constants) > 1):
+            res = 1
+            for i in list_of_constants: res *= self.children[i].value
+            if len(list_of_constants) == len(self.children):
+                self.__class__ = CONST
+                self.value = res
+            elif len(list_of_constants) <= len(self.children) - 1:
+                first_constant = list_of_constants.pop(0) # Possible because len(list_of_constants) >= 2
+                self.children[first_constant].value = res
+                for index in list_of_constants: self.children.pop(index)
 
-        if isinstance(self.left, CONST) and (self.left.value == 0):
-            self.__class__ = CONST
-            self.value = 0
-            return 
-
-        if isinstance(self.right, CONST) and (self.right.value == 0):
-            self.__class__ = CONST
-            self.value = 0 
-            return
+        # checking for multiplication by 0
+        for child in self.children:
+            if isinstance(child, CONST) and (child.value == 0):
+                self.__class__ = CONST
+                self.value = 0
+                return 
 
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
-    
-    def divide_by_const(self):
-        # Call only when actually dividing by a constant
-        # We are in the situation where self.right is constant.
-        # Remember that the children self.left and self.right have already been simplified!
-        if isinstance(self.left, CONST):
-            solution = self.left.value / self.right.value
-            self.__class__ = CONST
-            self.value = solution
-            return
-        if isinstance(self.left, MUL): # It is always the case that a const is placed before a variable or another mul
-            path = find_first(self.left, CONST, (DIV, ADD, SUB, POW))
-            if path == [-1] or path == []:
-                return
-            other_const_node = self.left
-            for step in path:
-                if step == 0: other_const_node = other_const_node.left
-                if step == 1: other_const_node = other_const_node.right
-            if isinstance(other_const_node, CONST): # sanity check
-                other_const_node.value = other_const_node.value / self.right.value
-                # For some reason it is paramount that right be copied first and then left!
-                self.right = self.left.right
-                self.left = self.left.left
-                self.__class__ = MUL
-        if isinstance(self.left, POW) or isinstance(self.left, VAR):
-            return # Nothing that can be further simplified
-        if isinstance(self.left, ADD):
-            pass # This needs some discussion maybe
-        if isinstance(self.left, SUB):
-            pass # Same for subtraction
-
-    def divide_by_var(self):
-        # Call only when actually dividing by a variable
-        # We are in the situation where self.right is variable.
-        # Remember that the children self.left and self.right have already been simplified!
-        if isinstance(self.left, VAR):
-            if self.left.value == self.right.value:
-                self.__class__ = CONST
-                self.value = 1
-            
-        
-
-    #def divide_long(self):
-        # First check whether long division is possible on this division node
-        #if (self.left is not None) and isinstance(self.left, BINARY): pass
-        #if (self.right is not None) and isinstance(self.right, BINARY): pass
-    #    pass
-
 
     def simplify(self):
-        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
-        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+        if (self.children[0] is not None) and isinstance(self.children[0], BINARY): self.children[0].simplify()
+        if (self.children[1] is not None) and isinstance(self.children[1], BINARY): self.children[1].simplify()
 
         # https://www.youtube.com/watch?v=5vpdzRbfTIM
 
         # A fraction (a/b)/c can be written as a/(bc).
-        if isinstance(self.left, DIV):
-            ll, lr, r = self.left.left, self.left.right, self.right
-            self.left = ll
+        if isinstance(self.children[0], DIV):
+            ll, lr, r = self.children[0].children[0], self.children[0].children[1], self.children[1]
+            self.children[0] = ll
 
-            # If the denominator is a fraction, then we have (a/b)/(c/d) => (a)/((bc)/d).
+            # If the denominator is a fraction, then we have (a/b)/(c/d) => (a)/((bc)/d) => (ad)/(bc)
             # Otherwise we have (a/b)/c => a/(bc).
-            if isinstance(self.right, DIV):
-                self.right = DIV(MUL(lr, r.left), r.right)
-
-            else: self.right = MUL(lr, r)
+            if isinstance(self.children[1], DIV):
+                self.children[0] = MUL(ll, r.children[1])
+                self.children[1] = MUL(lr, r.children[0])
+            else: self.children[1] = MUL(lr, r)
         
         # Dividing by a fraction is multiplying by the reciprocal.
-        if isinstance(self.right, DIV):
+        if isinstance(self.children[1], DIV):
 
-            left = MUL(self.left, self.right.right)
-            right = self.right.left
+            left = MUL(self.children[0], self.children[1].children[1])
+            right = self.children[1].children[0]
 
-            self.left, self.right = left, right
+            self.children[0], self.children[1] = left, right
+
+        # CONST division needs to be worked on, this is just the easy case
+        if isinstance(self.children[0], CONST) and isinstance(self.children[1], CONST) and self.children[0].value % self.children[1].value == 0:
+            self.__class__ = CONST
+            self.value = int(self.children[0].value / self.children[1].value)
+            return
 
         # Check whether divided by 1.
-        self._check_identity_element(self.right, self.left, 1)
-
-        if isinstance(self.right, CONST): 
-            self.divide_by_const()
-        #if isinstance(self.right, VAR):
-
+        self._check_identity_element(self.children[1], self.children[0], 1)
 
 class POW(BINARY):
     def __str__(self): 
         res = ""
 
-        if isinstance(self.left, (CONST, VAR) ):
-            res += f"{self.left.__str__()}"
-        else: res += f"( {self.left.__str__()} )"
+        if isinstance(self.children[0], (CONST, VAR) ):
+            res += f"{self.children[0].__str__()}"
+        else: res += f"( {self.children[0].__str__()} )"
         
         res += " ^ "
 
-        if isinstance(self.right, (CONST, VAR) ):
-            res += f"{self.right.__str__()}"
-        else: res += f"( {self.right.__str__()} )"
+        if isinstance(self.children[1], (CONST, VAR) ):
+            res += f"{self.children[1].__str__()}"
+        else: res += f"( {self.children[1].__str__()} )"
 
         return res
 
     def simplify(self):
-        if (self.left is not None) and isinstance(self.left, BINARY): self.left.simplify()
-        if (self.right is not None) and isinstance(self.right, BINARY): self.right.simplify()
+        if (self.children[0] is not None) and isinstance(self.children[0], BINARY): self.children[0].simplify()
+        if (self.children[1] is not None) and isinstance(self.children[1], BINARY): self.children[1].simplify()
     
         # Check whether to the power of 1.
-        self._check_identity_element(self.right, self.left, 1)
+        self._check_identity_element(self.children[1], self.children[0], 1)
 
         # Check the cases a^0, 0^a or 0^0.
-        if isinstance(self.left, CONST) and isinstance(self.right, CONST):
-            if (self.left.value == 0) and (self.right.value == 0): raise Exception("0^0 undefined!!!")
-            res = self.left.value ** self.right.value
+        if isinstance(self.children[0], CONST) and isinstance(self.children[1], CONST):
+            if (self.children[0].value == 0) and (self.children[1].value == 0): raise Exception("0^0 undefined!!!")
+            res = self.children[0].value ** self.children[1].value
             self.__class__ = CONST
             self.value = res
-        elif isinstance(self.left, CONST) and ( (self.left.value == 0) or (self.left.value == 1) ):
+        elif isinstance(self.children[0], CONST) and ( (self.children[0].value == 0) or (self.children[0].value == 1) ):
             self.__class__ = CONST
-            self.value = self.left.value
-        elif isinstance(self.right, CONST) and ( self.right.value == 0 ):
+            self.value = self.children[0].value
+        elif isinstance(self.children[1], CONST) and ( self.children[1].value == 0 ):
             self.__class__ = CONST
             self.value = 1
 
@@ -349,6 +250,7 @@ class POW(BINARY):
 # Variables
 class VAR(NODE):
     def __init__(self, val: str):
+        super().__init__() # VAR also has the self.children attribute, to prevent potential errors. The list is empty so no strange things will occur
         self.value = val
     
     def __str__(self):
@@ -360,6 +262,7 @@ class VAR(NODE):
 # Constants
 class CONST(NODE):
     def __init__(self, val):
+        super().__init__() # CONST also has the self.children attribute, to prevent potential errors. The list is empty so no strange things will occur
         self.value = val
 
     def __str__(self):
