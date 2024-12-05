@@ -5,7 +5,9 @@ from shunting_yard import *
 
 if __name__ == "__main__":
 
+
     expr = "x + y * 0 + 6 / 2 + 8 * 4 * 1 * 15 + xyz^2 + (x / y) / (a / b) + x / 1"
+    expr = "x / y"
 
     converter = SymbolicFunctionConverter()
     # Validate the function

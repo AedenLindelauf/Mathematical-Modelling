@@ -80,12 +80,8 @@ class ADD(FLUID):
     def __init__(self, *args):
         super().__init__(*args)
         
-    def __str__(self): 
-        string = ""
-        for child in self.children:
-            string += child.__str__()
-            string +=  " + "
-        return string[:-3]
+    def __str__(self):
+        return " + ".join( [child.__str__() for child in self.children] )
 
     def simplify(self):
         # If the child has children, simplify the children
@@ -134,18 +130,16 @@ class MUL(FLUID):
         super().__init__(*args)
 
     def __str__(self):
-        string = ""
+        string = []
 
         for child in self.children:
             if isinstance(child, (CONST, VAR) ):
-                string += f"{child.__str__()}"
-            else: string += f"( {child.__str__()} )"
-            
-            string += " * "
+                string.append( f"{child.__str__()}" )
+            else: string.append( f"( {child.__str__()} )" )
+        
+        return " * ".join(string)
+    
 
-        return string[:-3]
-    
-    
     def simplify(self):
         # If the child has children, simplify the children
         for child in self.children:
