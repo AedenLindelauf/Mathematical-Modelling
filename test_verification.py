@@ -6,6 +6,9 @@ class InvalidCharacterError(Exception):
 class OperatorPlacementError(Exception):
     pass
 
+class ParenthesisError(Exception):
+    pass
+
 OPERATORS = ("^", "*", "/", "+", "-")
 operator_pattern_creator = ["^["]
 operators_in_pattern = "".join([f"\\{operator}" for operator in OPERATORS])
@@ -16,7 +19,7 @@ IS_OPERATOR_PATTERN = re.compile(operator_pattern_str)
 
 NUMBER_PATTERN = re.compile(r"(^-?[0-9]+(\.[0-9])?$)")
 
-invalid_characters_str = f'[^a-zA-Z0-9{operators_in_pattern}()\\s]'
+invalid_characters_str = f'[^a-zA-Z0-9{operators_in_pattern}()\\s\\.]'
 INVALID_CHARACTERS_PATTERN = re.compile(invalid_characters_str)
 
 operators_in_pattern_excluding_minus = [f"\\{operator}" for operator in OPERATORS if operator != "-"]
@@ -27,9 +30,11 @@ START_OR_END_OPERATOR_PATTERN = re.compile(start_or_end_operator_pattern_str)
 consecutive_operator_pattern_str = f"[{operators_excluding_minus_pattern_str}]{{2,}}|\\-[{operators_excluding_minus_pattern_str}]"
 CONSECUTIVE_OPERATOR_PATTERN = re.compile(consecutive_operator_pattern_str)
 
-parenthesis_operator_pattern_str = f"[\\(\\)]"
+parenthesis_operator_pattern_str = f"[\\(\\)][{operators_in_pattern}]"
+PARENTHESIS_OPERATOR_PATTERN = re.compile(parenthesis_operator_pattern_str)
 
-
+OPEN_PARENTHESES_PATTERN = re.compile(r"\(")
+CLOSE_PARENTHESES_PATTERN = re.compile(r"\)")
 
 def is_numerical_value(token : str) -> bool:
     return bool(NUMBER_PATTERN.match(token))
@@ -37,7 +42,7 @@ def is_numerical_value(token : str) -> bool:
 def is_operator(token : str) -> bool:
     return bool(IS_OPERATOR_PATTERN.match(token))
 
-def constists_of_valid_characters(expression : str, raise_error : bool = False) -> bool:
+def consists_of_valid_characters(expression : str, raise_error : bool = False) -> bool:
     invalid_characters_used = INVALID_CHARACTERS_PATTERN.findall(expression)
     if not invalid_characters_used:
         return True
@@ -49,6 +54,7 @@ def constists_of_valid_characters(expression : str, raise_error : bool = False) 
     return False
 
 def starts_or_ends_with_binary_operator(expression : str, raise_error_if_true : bool = False, raise_error_if_false : bool = False) -> bool:
+    assert not (raise_error_if_true and raise_error_if_false), "Like this it will always raise an error."
     operators_at_start_or_end = list(START_OR_END_OPERATOR_PATTERN.finditer(expression))
 
     if operators_at_start_or_end and raise_error_if_true:
@@ -61,7 +67,7 @@ def starts_or_ends_with_binary_operator(expression : str, raise_error_if_true : 
     
     return bool(operators_at_start_or_end)
 
-def has_consecutive_operators(expression : str, raise_error : bool = True) -> bool:
+def has_consecutive_operators(expression : str, raise_error : bool = False) -> bool:
     consecutive_operators = CONSECUTIVE_OPERATOR_PATTERN.findall(expression)
 
     if not consecutive_operators:
@@ -72,15 +78,47 @@ def has_consecutive_operators(expression : str, raise_error : bool = True) -> bo
 
     return True
 
-def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
+def has_operator_after_parenthesis(expression : str, raise_error : bool = False):
+    parenthesis_operator_combos = PARENTHESIS_OPERATOR_PATTERN.findall(expression)
 
-    if not constists_of_valid_characters(expression, raise_errors):
+    if not parenthesis_operator_combos:
+        return False
+    
+    if raise_error:
+        raise OperatorPlacementError(f"Cannot have these operators right after a parenthesis like [{", ".join(parenthesis_operator_combos)}]")
+    
+    return True
+
+def has_matching_paretheses(expression : str, raise_error : bool = False):
+    opening_parentheses = OPEN_PARENTHESES_PATTERN.findall(expression)
+    closing_parentheses = CLOSE_PARENTHESES_PATTERN.findall(expression)
+    amount_opening_parentheses = len(opening_parentheses)
+    amount_closing_parentheses = len(closing_parentheses)
+
+    if amount_opening_parentheses == amount_closing_parentheses:
+        return True
+    
+    if raise_error:
+        type_of_unmatched_parenthesis = "opening" if amount_opening_parentheses > amount_closing_parentheses else "closing"
+        difference = abs(amount_opening_parentheses - amount_closing_parentheses)
+        singular_plural_str = "parethesis" if difference == 1 else "parentheses"
+        error_message = f"Expression has {difference} umatched {type_of_unmatched_parenthesis} {singular_plural_str}."
+        raise ParenthesisError(error_message)
+
+def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
+    if not consists_of_valid_characters(expression, raise_errors):
         return False
     
     if starts_or_ends_with_binary_operator(expression, raise_error_if_true = raise_errors):
         return False
     
     if has_consecutive_operators(expression, raise_errors):
+        return False
+    
+    if has_operator_after_parenthesis(expression, raise_errors):
+        return False
+    
+    if not has_matching_paretheses(expression, raise_errors):
         return False
     
     return True
