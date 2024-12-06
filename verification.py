@@ -9,6 +9,9 @@ class OperatorPlacementError(Exception):
 class ParenthesisError(Exception):
     pass
 
+class EmptyError(Exception):
+    pass
+
 OPERATORS = ("^", "*", "/", "+", "-")
 operator_pattern_creator = ["^["]
 operators_in_pattern = "".join([f"\\{operator}" for operator in OPERATORS])
@@ -30,17 +33,17 @@ START_OR_END_OPERATOR_PATTERN = re.compile(start_or_end_operator_pattern_str)
 consecutive_operator_pattern_str = f"[{operators_excluding_minus_pattern_str}]{{2,}}|\\-[{operators_excluding_minus_pattern_str}]"
 CONSECUTIVE_OPERATOR_PATTERN = re.compile(consecutive_operator_pattern_str)
 
-parenthesis_operator_pattern_str = f"[\\(\\)][{operators_in_pattern}]"
+parenthesis_operator_pattern_str = f"\\([{operators_excluding_minus_pattern_str}]"
 PARENTHESIS_OPERATOR_PATTERN = re.compile(parenthesis_operator_pattern_str)
 
-OPEN_PARENTHESES_PATTERN = re.compile(r"\(")
-CLOSE_PARENTHESES_PATTERN = re.compile(r"\)")
+PARENTHESES_PATTERN = re.compile(r"[\(\)]")
+
 
 def is_numerical_value(token : str) -> bool:
     return bool(NUMBER_PATTERN.match(token))
 
 def is_operator(token : str) -> bool:
-    return bool(IS_OPERATOR_PATTERN.match(token))
+    return token in OPERATORS
 
 def consists_of_valid_characters(expression : str, raise_error : bool = False) -> bool:
     invalid_characters_used = INVALID_CHARACTERS_PATTERN.findall(expression)
@@ -79,7 +82,7 @@ def has_consecutive_operators(expression : str, raise_error : bool = False) -> b
     return True
 
 def has_operator_after_parenthesis(expression : str, raise_error : bool = False):
-    parenthesis_operator_combos = PARENTHESIS_OPERATOR_PATTERN.findall(expression)
+    parenthesis_operator_combos : list[str] = PARENTHESIS_OPERATOR_PATTERN.findall(expression)
 
     if not parenthesis_operator_combos:
         return False
@@ -90,22 +93,38 @@ def has_operator_after_parenthesis(expression : str, raise_error : bool = False)
     return True
 
 def has_matching_paretheses(expression : str, raise_error : bool = False):
-    opening_parentheses = OPEN_PARENTHESES_PATTERN.findall(expression)
-    closing_parentheses = CLOSE_PARENTHESES_PATTERN.findall(expression)
-    amount_opening_parentheses = len(opening_parentheses)
-    amount_closing_parentheses = len(closing_parentheses)
+    parentheses : list[str] = PARENTHESES_PATTERN.findall(expression)
+    current_expected_pairs : int = 0
 
-    if amount_opening_parentheses == amount_closing_parentheses:
-        return True
+    for symbol in parentheses:
+        current_expected_pairs += 1 if symbol == "(" else -1
+
+        if current_expected_pairs >=0:
+            continue
+
+        if raise_error:
+            raise ParenthesisError("Unnmatched closing parenthesis")
+        
+        return False
     
+    if current_expected_pairs and raise_error:
+        raise ParenthesisError("Unnmatched opening parenthesis")
+    
+    return not bool(current_expected_pairs)
+
+def is_empty(expression : str, raise_error : bool = False):
+    if expression:
+        return False
+
     if raise_error:
-        type_of_unmatched_parenthesis = "opening" if amount_opening_parentheses > amount_closing_parentheses else "closing"
-        difference = abs(amount_opening_parentheses - amount_closing_parentheses)
-        singular_plural_str = "parethesis" if difference == 1 else "parentheses"
-        error_message = f"Expression has {difference} umatched {type_of_unmatched_parenthesis} {singular_plural_str}."
-        raise ParenthesisError(error_message)
+        raise EmptyError("No expression was given.")
+    
+    return True
 
 def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
+    if is_empty(expression, raise_errors):
+        return False
+    
     if not consists_of_valid_characters(expression, raise_errors):
         return False
     
@@ -125,6 +144,7 @@ def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
 
 
 if __name__ == "__main__":
+    print(is_operator("+"))
     while True:
         test_string = input("test string: ")
         if is_valid_expression(test_string):
