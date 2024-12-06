@@ -1,5 +1,5 @@
 import re
-print("This is being replaced")
+print("This is being replaced please use verification.py")
 class SymbolicFunctionConverter:
     def __init__(self):
         # Regular expression for valid symbols (variables, numbers, operators, and parentheses)
