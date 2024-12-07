@@ -1,4 +1,9 @@
-from node import *
+from operands.node import *
+from operands.binary import BINARY
+from operands.fluid import FLUID
+from operands.const import CONST
+from operands.var import VAR
+from operands.mul import MUL
 
 class Tree:
     def __init__(self, root: NODE):

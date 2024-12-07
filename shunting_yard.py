@@ -1,5 +1,15 @@
 from tree import Tree
-from node import *
+from operands.add import ADD
+from operands.binary import BINARY
+from operands.const import CONST
+from operands.div import DIV
+from operands.fluid import FLUID
+from operands.mul import MUL
+from operands.node import NODE
+from operands.pow import POW
+from operands.sub import SUB
+from operands.var import VAR
+
 
 def is_function(token : str) -> bool:
     return False
