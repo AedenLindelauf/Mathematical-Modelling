@@ -74,7 +74,7 @@ class Post_Fixer:
 
             elif is_operator(symbol):
                 self.add_to_operator_stack(symbol)
-
+                
             elif is_function(symbol):
                 pass
 
@@ -172,7 +172,8 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
             node_stack.append(operator_node)
 
         if is_numerical_value(token):
-            create_numerical_node(token)
+            new_leaf = create_numerical_node(token)
+            node_stack.append(new_leaf)
             
         
         if token.isalpha():
@@ -186,21 +187,21 @@ def create_numerical_node(token : str) -> NODE:
     if "." in token:
         fraction_start = token.index(".")
         fractional_part = token[fraction_start+1:]
-        initial_numerator = int(fractional_part)
-        initial_denominator = 10 * len(fractional_part)
+        initial_numerator = int(float(token) * 10 ** len(fractional_part))
+        initial_denominator = 10 ** len(fractional_part)
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
-        final_numerator = initial_numerator / greatest_common_divisor
-        final_denominator = initial_denominator / greatest_common_divisor
+        final_numerator = initial_numerator // greatest_common_divisor
+        final_denominator = initial_denominator // greatest_common_divisor
         division_node = DIV()
-        division_node.left = final_numerator
-        division_node.right = final_denominator
+        division_node.left = CONST(final_numerator)
+        division_node.right = CONST(final_denominator)
         return division_node
 
     int_token = int(token)
     return CONST(int_token)
 
 
-# wrong place works only for ints not polynomials
+# wrong place, works only for ints not polynomials
 def calculate_greatest_common_divisor(a : int, b : int) -> int:
     bigger_value : int = max(a, b)
     smaller_value : int = min(a, b)
@@ -219,6 +220,6 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
     return sign_a * quotient, remainder       
 
 if __name__ == "__main__":
-    pf = Post_Fixer("1.01 * x")
-    
+    print(0.1 + 0.2)
+    pf = Post_Fixer("1.2 * x")
     print(create_tree(pf.postfix_notation))

@@ -39,7 +39,7 @@ PARENTHESIS_OPERATOR_PATTERN = re.compile(parenthesis_operator_pattern_str)
 PARENTHESES_PATTERN = re.compile(r"[\(\)]")
 
 def is_function(token : str) -> bool:
-    return True
+    return False
 
 def is_numerical_value(token : str) -> bool:
     return bool(NUMBER_PATTERN.match(token))
