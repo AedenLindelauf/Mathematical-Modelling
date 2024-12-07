@@ -1,13 +1,6 @@
 from tree import Tree
 from node import *
-
-def is_function(token : str) -> bool:
-    return False
-
-def is_operator(token : str) -> bool:
-    return token in ("^", "*", "/", "+", "-")
-
-
+from verification import *
 
 class Post_Fixer:
     """
@@ -178,14 +171,54 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
             operator_node.right = right_hand_side
             node_stack.append(operator_node)
 
-        if token.isdigit(): #only accepts strings containing digits not "-1" or "1.0"
-            int_token = int(token)
-            node_stack.append(CONST(int_token))
+        if is_numerical_value(token):
+            create_numerical_node(token)
+            
         
         if token.isalpha():
             node_stack.append(VAR(token))
         
     return Tree(node_stack[0])
 
+def create_numerical_node(token : str) -> NODE:
+    assert is_numerical_value(token), "Wait this is not a number."
 
-        
+    if "." in token:
+        fraction_start = token.index(".")
+        fractional_part = token[fraction_start+1:]
+        initial_numerator = int(fractional_part)
+        initial_denominator = 10 * len(fractional_part)
+        greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
+        final_numerator = initial_numerator / greatest_common_divisor
+        final_denominator = initial_denominator / greatest_common_divisor
+        division_node = DIV()
+        division_node.left = final_numerator
+        division_node.right = final_denominator
+        return division_node
+
+    int_token = int(token)
+    return CONST(int_token)
+
+
+# wrong place works only for ints not polynomials
+def calculate_greatest_common_divisor(a : int, b : int) -> int:
+    bigger_value : int = max(a, b)
+    smaller_value : int = min(a, b)
+    if a == 0 or b == 0:
+        return abs(bigger_value or smaller_value)
+    _, remainder = division_with_remainder(bigger_value, smaller_value)
+    return calculate_greatest_common_divisor(smaller_value, remainder)
+
+def division_with_remainder(a : int, divider : int) -> tuple[int]:
+    quotient = 0
+    remainder = abs(a)
+    sign_a = 1 if remainder == a else -1
+    while remainder >= divider:
+        remainder -= divider
+        quotient += 1
+    return sign_a * quotient, remainder       
+
+if __name__ == "__main__":
+    pf = Post_Fixer("1.01 * x")
+    
+    print(create_tree(pf.postfix_notation))

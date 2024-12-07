@@ -20,7 +20,7 @@ operator_pattern_creator.append("]{1}$")
 operator_pattern_str = "".join(operator_pattern_creator)
 IS_OPERATOR_PATTERN = re.compile(operator_pattern_str)
 
-NUMBER_PATTERN = re.compile(r"(^-?[0-9]+(\.[0-9])?$)")
+NUMBER_PATTERN = re.compile(r"(^-?[0-9]+(\.[0-9]+)?$)")
 
 invalid_characters_str = f'[^a-zA-Z0-9{operators_in_pattern}()\\s\\.]'
 INVALID_CHARACTERS_PATTERN = re.compile(invalid_characters_str)
@@ -38,6 +38,8 @@ PARENTHESIS_OPERATOR_PATTERN = re.compile(parenthesis_operator_pattern_str)
 
 PARENTHESES_PATTERN = re.compile(r"[\(\)]")
 
+def is_function(token : str) -> bool:
+    return True
 
 def is_numerical_value(token : str) -> bool:
     return bool(NUMBER_PATTERN.match(token))
@@ -144,10 +146,4 @@ def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
 
 
 if __name__ == "__main__":
-    print(is_operator("+"))
-    while True:
-        test_string = input("test string: ")
-        if is_valid_expression(test_string):
-            print(test_string)
-        else:
-            break
+    print(is_numerical_value("-1.01"))
