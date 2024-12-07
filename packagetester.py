@@ -1,1 +1,0 @@
-from testpackage import *
