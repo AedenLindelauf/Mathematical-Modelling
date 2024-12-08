@@ -35,4 +35,4 @@ class ADD(FLUID):
                 if len(self.children) == 1: # If there is only one child left we need to do something
                     self = self.children[0]
 
-        # Check for adding polynomials.
+
