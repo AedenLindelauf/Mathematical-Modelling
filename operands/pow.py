@@ -37,3 +37,7 @@ class POW(BINARY):
         elif isinstance(self.children[1], CONST) and ( self.children[1].value == 0 ):
             self.__class__ = CONST
             self.value = 1
+
+        # Implement (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
+
+        # Check the case where we have (a^b)^c = a^(b * c).

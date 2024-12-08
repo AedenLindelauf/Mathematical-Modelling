@@ -41,3 +41,5 @@ class DIV(BINARY):
 
         # Check whether divided by 1.
         self._check_identity_element(self.children[1], self.children[0], 1)
+
+        # Check whether division by 0.
