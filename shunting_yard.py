@@ -172,9 +172,8 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
             node_stack.append(operator_node)
 
         if is_numerical_value(token):
-            create_numerical_node(token)
+            node_stack.append(create_numerical_node(token))
             
-        
         if token.isalpha():
             node_stack.append(VAR(token))
         
@@ -186,11 +185,14 @@ def create_numerical_node(token : str) -> NODE:
     if "." in token:
         fraction_start = token.index(".")
         fractional_part = token[fraction_start+1:]
-        initial_numerator = int(fractional_part)
-        initial_denominator = 10 * len(fractional_part)
+
+        initial_denominator = 10 ** len(fractional_part)
+        token_value = float(token)
+        initial_numerator = int(token_value * initial_denominator)
+        
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
-        final_numerator = initial_numerator / greatest_common_divisor
-        final_denominator = initial_denominator / greatest_common_divisor
+        final_numerator = initial_numerator // greatest_common_divisor
+        final_denominator = initial_denominator // greatest_common_divisor
         division_node = DIV()
         division_node.left = final_numerator
         division_node.right = final_denominator
