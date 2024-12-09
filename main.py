@@ -22,7 +22,6 @@ if __name__ == "__main__":
         test_tree = create_tree(post_fixer_2.postfix_notation)
         # Convert to common-operator-based structure
         test_tree.convert_to_common_operator_structure()
-        print(test_tree)
         # Simplify
         test_tree.simplify()
         print(f"Output:\t {test_tree}")
