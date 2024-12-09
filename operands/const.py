@@ -7,3 +7,6 @@ class CONST(NODE):
 
     def __str__(self):
         return str(self.value)
+    
+    def simplify(self):
+        return

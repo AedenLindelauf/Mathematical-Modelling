@@ -4,8 +4,8 @@ from shunting_yard import *
 
 if __name__ == "__main__":
 
-
-    expr = "x + y * 0 + 6 / 2 + 8 * 4 * 1 * 15 + xyz^2 + (x / y) / (a / b) + x / 1"
+    expr = "( a * b * c ) ^ d"
+    expr = "a ^ (b ^ (c ^ d))"
 
     converter = SymbolicFunctionConverter()
     # Validate the function
@@ -22,6 +22,7 @@ if __name__ == "__main__":
         test_tree = create_tree(post_fixer_2.postfix_notation)
         # Convert to common-operator-based structure
         test_tree.convert_to_common_operator_structure()
+        print(test_tree)
         # Simplify
         test_tree.simplify()
         print(f"Output:\t {test_tree}")

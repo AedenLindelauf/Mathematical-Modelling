@@ -1,18 +1,15 @@
 from operands.fluid import FLUID
 
 class ADD(FLUID):
-    def __init__(self, *args):
-        super().__init__(*args)
-        
     def __str__(self):
         return " + ".join( [child.__str__() for child in self.children] )
 
     def simplify(self):
         from operands.node import NODE
         from operands.const import CONST
+        
         # If the child has children, simplify the children
         for child in self.children:
-            if isinstance(child, NODE) and (child is not None) and len(child.children) > 1: 
                 child.simplify()
 
         # Add constants.

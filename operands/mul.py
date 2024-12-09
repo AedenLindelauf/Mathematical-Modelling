@@ -21,8 +21,7 @@ class MUL(FLUID):
     def simplify(self):
         # If the child has children, simplify the children
         for child in self.children:
-            if isinstance(child, NODE) and (child is not None) and len(child.children) > 1: # i.e. the child is not a leaf
-                child.simplify()
+            child.simplify()
 
         # Multiply constants
         list_of_constants = [i for i in range(len(self.children)) if isinstance(self.children[i], CONST)]

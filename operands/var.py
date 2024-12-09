@@ -7,3 +7,6 @@ class VAR(NODE):
     
     def __str__(self):
         return self.value
+    
+    def simplify(self):
+        return
