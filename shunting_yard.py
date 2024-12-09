@@ -105,13 +105,14 @@ class Post_Fixer:
             self.add_to_operator_stack("*")
         self.operator_stack.append("(")
          
-    def create_tree_directly(self, infix_notation : str) -> Tree:
+    def create_tree_directly(self, infix_tokens : list[str]) -> Tree:
         """
         Directly creates a tree from the infix notation given.
         """
         self.node_stack : list[NODE] = []
         self.operator_stack : list[str] = []
-        current_number_token : list[str] = []
+        for token in infix_tokens:
+            print(token)
 
     def add_variable(self, variable_name : str, implied_multiplication : bool) -> None:
         if implied_multiplication:
@@ -207,19 +208,35 @@ def create_numerical_node(token : str) -> NODE:
     int_token = int(token)
     return CONST(int_token)
 
-class Tokenizer:
-    def tokenize(self, infix_expresssion : str) -> list[str]:
-        self.minus_counter : str = 0
-        self.tokenized_expression : list[str] = []
-        self.letter_stack : list[str] = []
-        shifted_expression = infix_expresssion[1:] + " "
-        self.minus_is_unary = False
-        for self.symbol, self.next_symbol in zip(infix_expresssion, shifted_expression):
+
+class Expression:
+    def __init__(self, infix_expression : str):
+        self.infix_expression = infix_expression
+        self.tokenize()
+        self.create_tree()
+
+    def create_tree(self):
+        for token in self.tokenized_expression:
+            print(token)
+        
+        
+    def tokenize(self) -> None:
+        self.minus_counter          : str       = 0
+        self.tokenized_expression   : list[str] = []
+        self.letter_stack           : list[str] = []
+        self.number_stack           : list[str] = []
+        shifted_expression          : list[str] = self.infix_expression[1:] + " "
+        self.minus_is_unary         : bool      = True
+
+        for self.symbol, self.next_symbol in zip(self.infix_expression, shifted_expression):
             if is_letter(self.symbol):
                 self.handle_letter()
 
             elif is_operator(self.symbol):
                 self.handle_operator()
+
+            elif is_numerical_part(self.symbol):
+                self.handle_numerical_part()
 
             else:
                 self.add_tokens(self.symbol)
@@ -227,14 +244,32 @@ class Tokenizer:
             if self.next_symbol == "-":
                 self.determine_minus_nature()
 
-        return self.tokenized_expression
+    def handle_numerical_part(self):
+        self.number_stack.append(self.symbol)
+
+        if is_numerical_part(self.next_symbol):
+            return
+        
+        added_tokens : list[str] = ["".join(self.number_stack)]
+
+        if is_letter(self.next_symbol) or self.next_symbol == "(":
+            added_tokens.append("*")
+
+        self.add_tokens(added_tokens)
+        self.number_stack = []
+
     
     def add_tokens(self, tokens : str | list[str]) -> None:
         added_tokens : list[str] = list(tokens)
         if self.minus_counter:
-            added_tokens : list[str] = []
-        self.tokenized_expression.extend(tokens)
+            added_tokens = ["("]
+            added_tokens.extend(["-1","*"] * self.minus_counter)
+            added_tokens.extend(tokens)
+            added_tokens.extend([")"] * self.minus_counter)
+            self.minus_counter = 0
+        self.tokenized_expression.extend(added_tokens)
     
+
     def handle_operator(self) -> None:
         if not self.minus_is_unary:
             self.add_tokens(self.symbol)
@@ -247,11 +282,8 @@ class Tokenizer:
         if is_operator(self.symbol) or self.symbol == "(":
             self.minus_is_unary = True
         
-        elif is_letter(self.symbol) or self.symbol.isdigit():
-            self.minus_is_unary = False
-
         else:
-            raise OperatorPlacementError("There is a minus sign at the wrong place.")
+            self.minus_is_unary = False
 
     
     def handle_letter(self) -> None:
@@ -270,16 +302,14 @@ class Tokenizer:
             added_tokens = list("*".join(self.letter_stack))
             self.add_tokens(added_tokens)
 
-
-
+        self.letter_stack = []
         
+    def tokenize_letter_stack(letter_stack : list[str]) -> list[str]:
+        possible_function : str = "".join(letter_stack)
+        if is_function(possible_function):
+            return [possible_function]
         
-def tokenize_letter_stack(letter_stack : list[str]) -> list[str]:
-    possible_function : str = "".join(letter_stack)
-    if is_function(possible_function):
-        return [possible_function]
-    
-    print("*".join(letter_stack))
+        print("*".join(letter_stack))
 
 
 
@@ -304,5 +334,4 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
     return sign_a * quotient, remainder       
 
 if __name__ == "__main__":
-    T = Tokenizer()
-    print(T.tokenize("xyz+-"))
+    test_expression = Expression("-1.0xyz/-x")

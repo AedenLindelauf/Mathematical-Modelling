@@ -47,6 +47,14 @@ PARENTHESIS_OPERATOR_PATTERN = re.compile(parenthesis_operator_pattern_str)
 
 PARENTHESES_PATTERN = re.compile(r"[\(\)]")
 
+def is_numerical_part(symbol : str) -> bool:
+    if symbol.isdigit():
+        return True
+    
+    if symbol == ".":
+        return True
+    return False
+
 def is_function(token : str) -> bool:
     return False
 
