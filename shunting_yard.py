@@ -206,14 +206,44 @@ def create_numerical_node(token : str) -> NODE:
 
 
 class Expression:
+    OPERATOR_PRECEDENCES : dict[str, int] = {"^" : 4, "*" : 3, "/" : 3, "+" : 2, "-" : 2}
+    OPERATOR_ASSOCIATIVITY : dict[str, int] = {"^" : "Right", "*" : "Left", "/" : "Left", "+" : "Left", "-" : "Left"}
+
     def __init__(self, infix_expression : str):
         self.infix_expression = infix_expression.replace(" ","")
         self.tokenize()
         self.create_tree()
 
     def create_tree(self):
-        for token in self.tokenized_expression:
-            print(token)
+        self.operator_stack : list[str] = []
+        for self.token in self.tokenized_expression:
+            if is_operator(self.token):
+                self.add_operator_to_stack()
+    
+    def add_operator_to_stack(self):
+        while True:
+            if not self.operator_stack:
+                break
+
+            top_operator : str = self.operator_stack[-1]
+
+            if top_operator == "(":
+                break
+            
+            precendence_added_operator : int = self.OPERATOR_PRECEDENCES[self.token]
+            precendence_top_operator : int = self.OPERATOR_PRECEDENCES[top_operator]
+
+            if precendence_top_operator < precendence_added_operator:
+                break
+
+            associativity_top_operator : str = self.OPERATOR_ASSOCIATIVITY[top_operator]       
+            top_operator_is_left_associative : bool = associativity_top_operator == "Left"
+            if precendence_top_operator > precendence_added_operator or top_operator_is_left_associative:
+                self.postfix_notation.append(top_operator)
+                self.operator_stack.pop()
+                continue
+            
+        self.operator_stack.append(self.operator_stack)
         
         
     def tokenize(self) -> None:
