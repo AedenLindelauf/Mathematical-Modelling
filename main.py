@@ -7,6 +7,7 @@ if __name__ == "__main__":
     # expr = "( a * b * c ) ^ d"
     # expr = "a ^ (b ^ (c ^ d))"
     expr = "5x * 10y *z*20"
+    expr = "a+b"
 
     converter = SymbolicFunctionConverter()
     # Validate the function

@@ -1,13 +1,16 @@
 Simplificatie regels
-[  ] Samenvoegen +: 3x + 2x = 5x
-[  ] Samenvoegen *: 3x * 2 = 6x
-[  ] Samenvoegen /: 2x / x = 2
-[  ] Samenvoegen ^: x^2 * x^4 = x^6
-[  ] En: x^4 / x^2 = x^2
-[  ] En: (x^4)^2 = x^8
-[  ] Rekenregels/getallen uitwerken: 2 + 3*3 = 11
+[   ] Samenvoegen +: 3x + 2x = 5x
+[   ] Samenvoegen *: 3x * 2 = 6x
+[   ] Samenvoegen /: 2x / x = 2
+[   ] Samenvoegen ^: x^2 * x^4 = x^6
+[   ] En: x^4 / x^2 = x^2
+[   ] En: (x^4)^2 = x^8
+[   ] Rekenregels/getallen uitwerken: 2 + 3*3 = 11
 
-[  ] Distributive: a(b+c) = ab + ac
-[  ] Haakjes uitwerken (distribute x2): (a+b)(c+d)
-[  ] Fractions versimpelen: 2/4 = 1/2
-[  ] Factorisatie: ax+a = a(x+1)
+[   ] Distributive: a(b+c) = ab + ac
+[   ] Haakjes uitwerken (distribute x2): (a+b)(c+d)
+[   ] Fractions versimpelen: 2/4 = 1/2
+[   ] Factorisatie: ax+a = a(x+1)
+
+[ x ] a^(b^c) = a^(b*c)
+[ x ] (a...b)^c = a^c...b^c
