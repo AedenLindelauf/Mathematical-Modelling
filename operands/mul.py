@@ -23,22 +23,20 @@ class MUL(FLUID):
         for child in self.children:
             child.simplify()
 
-        # Multiply constants
-        list_of_constants = [i for i in range(len(self.children)) if isinstance(self.children[i], CONST)]
-        if (len(list_of_constants) > 1):
-            res = 1
-            for i in list_of_constants: res *= self.children[i].value
-            if len(list_of_constants) == len(self.children):
-                self.__class__ = CONST
-                self.value = res
-            elif len(list_of_constants) <= len(self.children) - 1:
-                first_constant = list_of_constants.pop(0) # Possible because len(list_of_constants) >= 2
-                self.children[first_constant].value = res
-                for index in list_of_constants: self.children.pop(index)
-
-        # checking for multiplication by 0
+        # Multiply constants. Checking for zero is obsolete since it is taken in the loop.
+        const_prod = CONST(1)     # Keeps track of the sum of the values of CONST children.
+        new_children = [const_prod] # Keeps track of the children.
         for child in self.children:
-            if isinstance(child, CONST) and (child.value == 0):
-                self.__class__ = CONST
-                self.value = 0
-                return 
+             
+             # If the child is a constant, update the const_prod value, otherwise 
+             # append the child to the new_children array which takes O(1) amortized time.
+             if isinstance(child, CONST): const_prod.value *= child.value
+             else: new_children.append(child)
+        
+        # If there is only one child, then it has to be a constant since it is the only node we always add.
+        # Otherwise there are more constants.
+        if const_prod.value == 0: 
+             self.__class__ = CONST
+             self.value = 0
+        else:
+             self.children = new_children

@@ -1,6 +1,5 @@
 from operands.binary import BINARY
 
-
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
@@ -8,8 +7,8 @@ class DIV(BINARY):
         from operands.mul import MUL
         from operands.const import CONST
 
-        if (self.children[0] is not None) and isinstance(self.children[0], BINARY): self.children[0].simplify()
-        if (self.children[1] is not None) and isinstance(self.children[1], BINARY): self.children[1].simplify()
+        self.children[0].simplify()
+        self.children[1].simplify()
 
         # https://www.youtube.com/watch?v=5vpdzRbfTIM
 
@@ -43,3 +42,4 @@ class DIV(BINARY):
         self._check_identity_element(self.children[1], self.children[0], 1)
 
         # Check whether division by 0.
+        if isinstance(self.children[1], CONST) and (self.children[1].value == 0) : raise ZeroDivisionError()

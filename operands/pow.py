@@ -45,7 +45,7 @@ class POW(BINARY):
             self.__class__ = CONST
             self.value = 1
 
-        # Implement (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
+        # (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
         if isinstance(a, MUL):
             for index in range(len(a.children)):
                 a.children[index] = POW( deepcopy(c), a.children[index] )
@@ -59,9 +59,11 @@ class POW(BINARY):
             c = self.children[1]
             self.children[0] = a
             self.children[1] = MUL(b, c)
+            self.children[1].simplify()
         
         # Check the case where we have a^(b^c) = a^(b * c).
         if isinstance(self.children[1], POW):
             b = self.children[1].children[0]
             c = self.children[1].children[1]
             self.children[1] = MUL(b, c)
+            self.children[1].simplify()
