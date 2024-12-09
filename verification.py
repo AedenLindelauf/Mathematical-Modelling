@@ -13,6 +13,15 @@ class EmptyError(Exception):
     pass
 
 OPERATORS = ("^", "*", "/", "+", "-")
+
+temp_letters = []
+for letter_order in range(ord("a"), ord("z") + 1):
+    lower_case = chr(letter_order)
+    upper_case = lower_case.upper()
+    temp_letters.extend((lower_case, upper_case))
+
+LETTERS = tuple(temp_letters)
+
 operator_pattern_creator = ["^["]
 operators_in_pattern = "".join([f"\\{operator}" for operator in OPERATORS])
 operator_pattern_creator.append(operators_in_pattern)
@@ -40,6 +49,15 @@ PARENTHESES_PATTERN = re.compile(r"[\(\)]")
 
 def is_function(token : str) -> bool:
     return False
+
+def is_letter(symbol : str) -> bool:
+    return symbol in LETTERS
+
+def is_variable(token : str) -> bool:
+    if is_function(token):
+        return False
+    print(set(token))
+    return not bool(set(token) - set(LETTERS))
 
 def is_numerical_value(token : str) -> bool:
     return bool(NUMBER_PATTERN.match(token))
@@ -146,4 +164,4 @@ def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
 
 
 if __name__ == "__main__":
-    print(is_numerical_value("-1.01"))
+    print(is_variable("xy"))
