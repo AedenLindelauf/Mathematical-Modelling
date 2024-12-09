@@ -188,12 +188,8 @@ def create_numerical_node(token : str) -> NODE:
     if "." in token:
         fraction_start = token.index(".")
         fractional_part = token[fraction_start+1:]
-        initial_numerator = int(float(token) * 10 ** len(fractional_part))
+        initial_numerator = int(token.replace(".", ""))
         initial_denominator = 10 ** len(fractional_part)
-
-        initial_denominator = 10 ** len(fractional_part)
-        token_value = float(token)
-        initial_numerator = int(token_value * initial_denominator)
         
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
         final_numerator = initial_numerator // greatest_common_divisor
@@ -211,7 +207,7 @@ def create_numerical_node(token : str) -> NODE:
 
 class Expression:
     def __init__(self, infix_expression : str):
-        self.infix_expression = infix_expression
+        self.infix_expression = infix_expression.replace(" ","")
         self.tokenize()
         self.create_tree()
 
@@ -229,7 +225,10 @@ class Expression:
         self.minus_is_unary         : bool      = True
 
         for self.symbol, self.next_symbol in zip(self.infix_expression, shifted_expression):
-            if is_letter(self.symbol):
+            if self.symbol.isspace():
+                continue
+
+            elif is_letter(self.symbol):
                 self.handle_letter()
 
             elif is_operator(self.symbol):
@@ -261,12 +260,15 @@ class Expression:
     
     def add_tokens(self, tokens : str | list[str]) -> None:
         added_tokens : list[str] = list(tokens)
+
         if self.minus_counter:
+            self.minus_is_unary = False
             added_tokens = ["("]
             added_tokens.extend(["-1","*"] * self.minus_counter)
             added_tokens.extend(tokens)
             added_tokens.extend([")"] * self.minus_counter)
             self.minus_counter = 0
+
         self.tokenized_expression.extend(added_tokens)
     
 
@@ -334,4 +336,4 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
     return sign_a * quotient, remainder       
 
 if __name__ == "__main__":
-    test_expression = Expression("-1.0xyz/-x")
+    test_expression = Expression("-1.0+  xyz/-x")
