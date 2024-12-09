@@ -201,6 +201,83 @@ def create_numerical_node(token : str) -> NODE:
     int_token = int(token)
     return CONST(int_token)
 
+class Tokenizer:
+    def tokenize(self, infix_expresssion : str) -> list[str]:
+        self.minus_counter : str = 0
+        self.tokenized_expression : list[str] = []
+        self.letter_stack : list[str] = []
+        shifted_expression = infix_expresssion[1:] + " "
+        self.minus_is_unary = False
+        for self.symbol, self.next_symbol in zip(infix_expresssion, shifted_expression):
+            if is_letter(self.symbol):
+                self.handle_letter()
+
+            elif is_operator(self.symbol):
+                self.handle_operator()
+
+            else:
+                self.add_tokens(self.symbol)
+
+            if self.next_symbol == "-":
+                self.determine_minus_nature()
+
+        return self.tokenized_expression
+    
+    def add_tokens(self, tokens : str | list[str]) -> None:
+        added_tokens : list[str] = list(tokens)
+        if self.minus_counter:
+            added_tokens : list[str] = []
+        self.tokenized_expression.extend(tokens)
+    
+    def handle_operator(self) -> None:
+        if not self.minus_is_unary:
+            self.add_tokens(self.symbol)
+        
+        elif self.symbol == "-":
+            self.minus_counter += 1
+
+    
+    def determine_minus_nature(self) -> None:
+        if is_operator(self.symbol) or self.symbol == "(":
+            self.minus_is_unary = True
+        
+        elif is_letter(self.symbol) or self.symbol.isdigit():
+            self.minus_is_unary = False
+
+        else:
+            raise OperatorPlacementError("There is a minus sign at the wrong place.")
+
+    
+    def handle_letter(self) -> None:
+        self.letter_stack.append(self.symbol)
+
+        if not is_letter(self.next_symbol):
+            self.add_letter_stack()
+
+    def add_letter_stack(self) -> None:
+        possible_function = "".join(self.letter_stack)
+
+        if is_function(possible_function):
+            self.add_tokens(possible_function)
+        
+        else:
+            added_tokens = list("*".join(self.letter_stack))
+            self.add_tokens(added_tokens)
+
+
+
+        
+        
+def tokenize_letter_stack(letter_stack : list[str]) -> list[str]:
+    possible_function : str = "".join(letter_stack)
+    if is_function(possible_function):
+        return [possible_function]
+    
+    print("*".join(letter_stack))
+
+
+
+
 
 # wrong place works only for ints not polynomials
 def calculate_greatest_common_divisor(a : int, b : int) -> int:
@@ -221,6 +298,5 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
     return sign_a * quotient, remainder       
 
 if __name__ == "__main__":
-    pf = Post_Fixer("1.01 * x")
-    
-    print(create_tree(pf.postfix_notation))
+    T = Tokenizer()
+    print(T.tokenize("xyz+-"))
