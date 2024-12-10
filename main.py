@@ -4,12 +4,22 @@ from shunting_yard import *
 
 if __name__ == "__main__":
 
-
-    expr = "a+b"
+    expr = "(a+b)^2*(a+b)^2"
 
     converter = SymbolicFunctionConverter()
     # Validate the function
     is_valid, message = converter.validate_function(expr)
+
+
+    # Bij power of variable moet er nog een case worden gefixt.
+        # Ik heb 2 inputs, maar roep het op met variable.compare(variable). Moet 1tje self worden oid?
+        #deze laatste is groot ding. Voornamelijk bij welk situaties het gebruikt moet worden.
+        # ziet die tree1 als variable voor self?
+        #!!!! Je zou simplify in de compare function kunnen gooien?? zodat 2^3 en 8 hetzelfde zouden kunnen worden gezien? anders is dat iig nooit zo
+        #!! exp1.__class__ == exp2.__class__   Dit wordt overal gebruikt, maar kan dat ik ook een keer niet true zijn terwijl ze wel gelijk zijn?
+        #wat moet ie met(a+b) * (a+b) doen? expanden? of kwadraat optellen bij elkaar?
+
+
     if not is_valid:
         print(f"Input:\t {expr}\n{message}")
     else:
@@ -24,4 +34,28 @@ if __name__ == "__main__":
         test_tree.convert_to_common_operator_structure()
         # Simplify
         test_tree.simplify()
+
         print(f"Output:\t {test_tree}")
+
+        
+
+        # expr_compare1 = "(b + a + (b+a)*(b+a) + a)"
+        # expr_compare2 = "(a + b + (a+b)*(b+a) + a)"
+        # # Standardize the function
+        # standardized_expr1 = converter.standardize_function(expr_compare1)
+        # standardized_expr2 = converter.standardize_function(expr_compare2)
+        # print(f"Corrected input 1: {standardized_expr1}\nCorrected input 2:", standardized_expr2)
+
+        # # Convert to tree
+        # post_fixer_o = Post_Fixer(standardized_expr1)
+        # post_fixer_t = Post_Fixer(standardized_expr2)
+        # test_tree_o = create_tree(post_fixer_o.postfix_notation)
+        # test_tree_t = create_tree(post_fixer_t.postfix_notation)
+
+        # # Convert to common-operator-based structure
+        # test_tree_o.convert_to_common_operator_structure()
+        # test_tree_t.convert_to_common_operator_structure()
+
+        
+        # result = test_tree_o.root.compare(test_tree_t.root)
+        # print(result)

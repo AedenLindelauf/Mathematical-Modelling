@@ -19,8 +19,24 @@ class MUL(FLUID):
         
         return " * ".join(string)
     
-    #recursie: check of alle childeren hetzelfde zijn
-    #base case maken wanner je bij leaveas bent gekomen
+    def compare(tree1, tree2):
+        if tree1.__class__ != tree2.__class__: 
+            return False
+        tree1children = tree1.children
+        tree2children = tree2.children
+        print(tree1children, tree2children)
+        for child1 in tree1children:
+            print(tree2children)
+            something_removed = False
+            for child2 in tree2children:
+                if child1.compare(child2):
+                    tree2children.remove(child2)
+                    something_removed = True 
+                    break
+            if not something_removed:
+                return False
+        
+        return tree2children == []
 
     def simplify(self):
         # If the child has children, simplify the children
@@ -53,27 +69,35 @@ class MUL(FLUID):
         new_children_exponent = []
         for child in self.children:
 
-            if isinstance(child, POW):
-                base = child.children[0]
-                exponent = child.children[1]
-
-                #Equals method maken, die checkt of twee trees (dat een object is, hier base) hetzelfde zijn?
-                #Alles eronder in soort set zetten die dat dan op zou kunnen slaan?
-                if base.value in base_exponent:
-                    base_exponent[base.value] = (base, ADD(base_exponent[base.value][1], exponent))
-                else:
-                    base_exponent[base.value] = (base, exponent)
-
-            elif isinstance(child, VAR):
+            if not isinstance(child, POW):
                 base = child
                 exponent = 1
-                if base.value in base_exponent:
-                    base_exponent[base.value] = (base, ADD(base_exponent[base.value][1], exponent))
-                else:
+                added = False
+                for bases in base_exponent:
+                    if base.compare(bases):
+                        base_exponent[base.value] = (base, ADD(base_exponent[base.value][1], exponent))
+# .simplify toevoegen hier?
+                        added = True
+                        break
+                if not added:
                     base_exponent[base.value] = (base, exponent)
 
+            #wat als je gw alleen(a+b) hebt, zonder macht, of constant? deze hierboven veranderen naar general case? is er uberhaupt een else case? ja wnr er niet 2 dingen hetzelfde zijn. maar dat kan ook hierboven
             else:
-                new_children_exponent.append(child)
+                base = child.children[0]
+                exponent = child.children[1]
+                added = False
+                #het adden gaat fout, want je kan base_exponent[base] niet opzoeken
+                for bases in base_exponent:
+                    if base.compare(bases):
+                        base_exponent[base] = (base, ADD(base_exponent[base][1], exponent))
+# .simplify toevoegen hier?
+                        added = True
+                        break
+                if not added:
+                    base_exponent[base] = (base, exponent)
+
+
 
         for x, tuppel in base_exponent.items(): new_children_exponent.append(POW(tuppel[1], tuppel[0]))
 
