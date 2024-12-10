@@ -4,8 +4,8 @@ from shunting_yard import *
 
 if __name__ == "__main__":
 
-    expr = "(a+b)^2*(a+b)^2"
-
+    expr =  "x*x"
+    #"(a+b)^2*(a+b)^2 *
     converter = SymbolicFunctionConverter()
     # Validate the function
     is_valid, message = converter.validate_function(expr)

@@ -10,11 +10,9 @@ class ADD(FLUID):
         # alles in een list zetten, en dan kijken of het in die andere list zit, zo ja, haal dat eruit. Als empty list overblijft dan is het gelijk. 
         # een manier om 'injectivity' te checken. Dit werkt, alleen is computation time aanvaardbaar?
         # een snellere methode zou Hashen zijn, dan kan je sorten, maar dat is best complex
-        tree1children = tree1.children
-        tree2children = tree2.children
-        print(tree1children, tree2children)
+        tree1children = tree1.children.copy()
+        tree2children = tree2.children.copy()
         for child1 in tree1children:
-            print(tree2children)
             something_removed = False
             for child2 in tree2children:
                 if child1.compare(child2):

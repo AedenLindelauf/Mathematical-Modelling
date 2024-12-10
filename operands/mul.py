@@ -22,11 +22,9 @@ class MUL(FLUID):
     def compare(tree1, tree2):
         if tree1.__class__ != tree2.__class__: 
             return False
-        tree1children = tree1.children
-        tree2children = tree2.children
-        print(tree1children, tree2children)
+        tree1children = tree1.children.copy()
+        tree2children = tree2.children.copy()
         for child1 in tree1children:
-            print(tree2children)
             something_removed = False
             for child2 in tree2children:
                 if child1.compare(child2):
@@ -73,36 +71,38 @@ class MUL(FLUID):
                 base = child
                 exponent = 1
                 added = False
-                for bases in base_exponent:
-                    if base.compare(bases):
-                        base_exponent[base.value] = (base, ADD(base_exponent[base.value][1], exponent))
-# .simplify toevoegen hier?
+                
+                for saved_base in base_exponent:
+                    if base.compare(saved_base):
+                        base_exponent[saved_base] = ADD(base_exponent[saved_base], exponent)
+# .simplify toevoegen hier? 
                         added = True
                         break
                 if not added:
-                    base_exponent[base.value] = (base, exponent)
-
-            #wat als je gw alleen(a+b) hebt, zonder macht, of constant? deze hierboven veranderen naar general case? is er uberhaupt een else case? ja wnr er niet 2 dingen hetzelfde zijn. maar dat kan ook hierboven
+                    base_exponent[base] = exponent
             else:
                 base = child.children[0]
                 exponent = child.children[1]
                 added = False
-                #het adden gaat fout, want je kan base_exponent[base] niet opzoeken
-                for bases in base_exponent:
-                    if base.compare(bases):
-                        base_exponent[base] = (base, ADD(base_exponent[base][1], exponent))
+                for saved_base in base_exponent:
+                    if base.compare(saved_base):
+                        base_exponent[saved_base] = ADD(base_exponent[saved_base], exponent)
 # .simplify toevoegen hier?
                         added = True
                         break
                 if not added:
-                    base_exponent[base] = (base, exponent)
+                    base_exponent[base] = exponent
 
 
-
-        for x, tuppel in base_exponent.items(): new_children_exponent.append(POW(tuppel[1], tuppel[0]))
-
-        self.__class__ = MUL
-        self.children = new_children_exponent
+        for base, exponent in base_exponent.items(): 
+            new_children_exponent.append(POW(exponent, base))
+        if len(new_children_exponent) == 1:
+            self.__class__ = MUL
+            self.children = new_children_exponent
+#Dit werkt? Moet IIG anders!!
+        else: 
+            self.__class__ = MUL
+            self.children = new_children_exponent
         #wat als het maar 1 power wordt? if len(new_child..) == 1: leaf maken, anders deze optie?
 
         #end of adding powers
