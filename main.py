@@ -4,8 +4,11 @@ from shunting_yard import *
 
 if __name__ == "__main__":
 
-    expr =  "3*3"
-    #"(a+b)^2*(a+b)^2 *
+    # expr = "( a * b * c ) ^ d"
+    # expr = "a ^ (b ^ (c ^ d))"
+    expr = "5x * 10y *z*20"
+    expr = "5 * x * y * z * 100"
+
     converter = SymbolicFunctionConverter()
     # Validate the function
     is_valid, message = converter.validate_function(expr)

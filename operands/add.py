@@ -56,27 +56,25 @@ class ADD(FLUID):
         for child in self.children:
             child.simplify()
 
-        # Add constants.
-        list_of_constants = [i for i in range(len(self.children)) if isinstance(self.children[i], CONST)]
-        if (len(list_of_constants) > 1):
-            res = sum([self.children[i].value for i in list_of_constants])
-            if len(list_of_constants) == len(self.children):
-                self.__class__ = CONST
-                self.value = res
-            elif len(list_of_constants) <= len(self.children) - 1:
-                first_constant = list_of_constants.pop(0) # Possible because len(list_of_constants) >= 2
-                self.children[first_constant].value = res
-                list_of_constants.reverse()
-                for index in list_of_constants: self.children.pop(index)
-
-        # Check for adding a zero
+        # Add constants. Checking for zero is obsolete since it is taken in the loop.
+        new_children = [] # Keeps track of the children that are not constants.
+        const_sum = 0     # Keeps track of the sum of the values of CONST children.
         for child in self.children:
-            if isinstance(child, CONST) and (child.value == 0):
-                self.children.remove(child)
-                if len(self.children) == 1: # If there is only one child left we need to do something
-                    self = self.children[0]
-
-
+             
+             # If the child is a constant, update the const_sum value, otherwise 
+             # append the child to the new_children array which takes O(1) amortized time.
+             if isinstance(child, CONST): const_sum += child.value
+             else: new_children.append(child)
+        
+        # If there is only one child, then it has to be a constant since it is the only node we always add.
+        # Otherwise there are more constants.
+        if new_children: 
+             self.children = new_children
+             if const_sum != 0: self.children.append(CONST(const_sum))
+        else:
+             self.__class__ = CONST
+             self.value = const_sum
+             
         #constant*(iets) bij elkaar optellen
         for child in self.children:
             if isinstance(child, MUL):
