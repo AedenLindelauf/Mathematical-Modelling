@@ -50,10 +50,11 @@ class ADD(FLUID):
     def simplify(self):
         from operands.node import NODE
         from operands.const import CONST
+        from operands.mul import MUL
         
         # If the child has children, simplify the children
         for child in self.children:
-                child.simplify()
+            child.simplify()
 
         # Add constants.
         list_of_constants = [i for i in range(len(self.children)) if isinstance(self.children[i], CONST)]
@@ -75,4 +76,10 @@ class ADD(FLUID):
                 if len(self.children) == 1: # If there is only one child left we need to do something
                     self = self.children[0]
 
+
+        #constant*(iets) bij elkaar optellen
+        for child in self.children:
+            if isinstance(child, MUL):
+#alle (ietsjes) in een list zetten, en met dubbele forloop kijken welke allemaal hetzelfde zijn?
+                pass
 

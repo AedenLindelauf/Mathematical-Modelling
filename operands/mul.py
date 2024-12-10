@@ -69,7 +69,7 @@ class MUL(FLUID):
 
             if not isinstance(child, POW):
                 base = child
-                exponent = 1
+                exponent = CONST(1)
                 added = False
                 
                 for saved_base in base_exponent:
