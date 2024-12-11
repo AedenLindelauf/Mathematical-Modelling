@@ -6,8 +6,11 @@ if __name__ == "__main__":
 
     # expr = "( a * b * c ) ^ d"
     # expr = "a ^ (b ^ (c ^ d))"
-    expr = "5x * 10y *z*20"
-    expr = "5 * x * y * z * 100"
+    expr = "4^(3(a+b))"
+    #expr = "0*a"
+
+    #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.
+    #(a+b)*(c+3) -> self.childeren geeft a+b en c. Waar is die 3 heen?
 
     converter = SymbolicFunctionConverter()
     # Validate the function
@@ -21,7 +24,7 @@ if __name__ == "__main__":
         #!!!! Je zou simplify in de compare function kunnen gooien?? zodat 2^3 en 8 hetzelfde zouden kunnen worden gezien? anders is dat iig nooit zo
         #!! exp1.__class__ == exp2.__class__   Dit wordt overal gebruikt, maar kan dat ik ook een keer niet true zijn terwijl ze wel gelijk zijn?
         #wat moet ie met(a+b) * (a+b) doen? expanden? of kwadraat optellen bij elkaar?
-
+    #code kan stuk netter, veel if statements
 
     if not is_valid:
         print(f"Input:\t {expr}\n{message}")
@@ -42,8 +45,8 @@ if __name__ == "__main__":
 
         
 
-        # expr_compare1 = "(b + a + (b+a)*(b+a) + a)"
-        # expr_compare2 = "(a + b + (a+b)*(b+a) + a)"
+        # expr_compare1 = "(b + a + (b+a)*(b+a) + a + 2^2)"
+        # expr_compare2 = "(a + b + (a+b)*(b+a) + a + 2^f)"
         # # Standardize the function
         # standardized_expr1 = converter.standardize_function(expr_compare1)
         # standardized_expr2 = converter.standardize_function(expr_compare2)

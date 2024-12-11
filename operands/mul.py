@@ -92,8 +92,15 @@ class MUL(FLUID):
                     base_exponent[base] = exponent
 
 
-        for base, exponent in base_exponent.items(): 
-            new_children_exponent.append(POW(exponent, base))
+        for base, exponent in base_exponent.items():
+            if exponent.__class__ == CONST:
+                if exponent.value == 1:
+                    new_children_exponent.append(base)
+                else: 
+                    new_children_exponent.append(POW(exponent, base))
+            else:
+                new_children_exponent.append(POW(exponent, base))
+        
         if len(new_children_exponent) == 1:
             self.__class__ = MUL
             self.children = new_children_exponent
@@ -107,13 +114,20 @@ class MUL(FLUID):
 
 
         #a * (b + c)
+        expansion = []
+        print(self.children[1])
         for i, child in enumerate(self.children):
+
             if isinstance(child, ADD):
-                expension = []
+                print(child.children)
                 for grandchild in child.children:
-                    expension.append(MUL(self.children[1 - i], grandchild))
+                    other_factors = self.children[:i] + self.children[i+1:] #everything except the expansion term
+                    expanded = MUL(*(other_factors + [grandchild]))
+                    expansion.append(expanded)
                 self.__class__ = ADD
-                self.children = expension
+                self.children = expansion
                 break
+     
+
                 
         

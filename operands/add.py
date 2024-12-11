@@ -1,4 +1,6 @@
 from operands.fluid import FLUID
+from operands.var import VAR
+from operands.pow import POW
 
 class ADD(FLUID):
     def __str__(self):
@@ -74,10 +76,66 @@ class ADD(FLUID):
         else:
              self.__class__ = CONST
              self.value = const_sum
-             
-        #constant*(iets) bij elkaar optellen
-        for child in self.children:
-            if isinstance(child, MUL):
-#alle (ietsjes) in een list zetten, en met dubbele forloop kijken welke allemaal hetzelfde zijn?
-                pass
 
+
+
+        #constant*(iets) bij elkaar optellen
+
+        adding_together = {}
+        for child in self.children:
+            if isinstance(child, VAR) or isinstance(child, POW): #is dit in nog meer situaties?
+                added = False
+                for expression in adding_together:
+                    if child.compare(expression):
+                        adding_together[expression] = ADD(adding_together[expression], CONST(1))
+                        added = True
+                if not added:
+                    adding_together[child] = CONST(1)
+                #hier moet dan een 1 komen voor var, check if in dic, anders-> en dat toevoegen aan dic
+                
+            elif isinstance(child, MUL):
+                for i, grandchild in enumerate(child.children):
+                #if isinstance != var(x), dan kan je buiten haakjes halen?
+                    if isinstance(grandchild, CONST):
+                        other_factors = child.children[:i] + child.children[i+1:]
+                        if len(other_factors) != 1:
+                            other_factors = MUL(*(other_factors))
+                        else:
+                            other_factors = other_factors[0]
+                        #constante = grandchild
+                        added = False
+                        for expression in adding_together:
+                            if other_factors.compare(expression):
+                                adding_together[expression] = ADD(adding_together[expression], grandchild)
+                                added = True
+                        if not added:
+                            adding_together[other_factors] = grandchild
+                        break
+            
+
+
+    # if isinstance(child, ADD):
+    #             for grandchild in child.children:
+    #                 other_factors = self.children[:i] + self.children[i+1:] #everything except the expansion term
+    #                 expanded = MUL(*(other_factors + [grandchild]))
+    #                 expansion.append(expanded)
+    #             self.__class__ = ADD
+    #             self.children = expansion
+    #             break
+                 #if there is a constant, check of in dic, anders: voeg rest toe aan dic -> rest:const
+#alle (ietsjes) in een list zetten, en met dubbele forloop kijken welke allemaal hetzelfde zijn?
+
+            
+        new_children = []
+        if adding_together:
+            for expression, constant in adding_together.items():
+                constant.simplify()
+                if constant.value == 1:
+                    new_children.append(expression)
+                else:
+                    new_children.append(MUL(constant, expression))
+            self.__class__ = ADD
+            self.children = new_children
+
+                        
+               
