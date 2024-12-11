@@ -1,6 +1,13 @@
 from tree import Tree
 from node import *
-from verification import *
+
+def is_function(token : str) -> bool:
+    return False
+
+def is_operator(token : str) -> bool:
+    return token in ("^", "*", "/", "+", "-")
+
+
 
 class Post_Fixer:
     """
@@ -164,11 +171,7 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
 
     for token in post_fix_notation:
         if is_operator(token):
-            right_hand_side = node_stack.pop()
-            left_hand_side = node_stack.pop()
-            operator_node = OPERATOR_NODES[token]()
-            operator_node.left = left_hand_side
-            operator_node.right = right_hand_side
+            operator_node = OPERATOR_NODES[token](node_stack.pop(), node_stack.pop()) # Need to feed the children into the initialization
             node_stack.append(operator_node)
 
         if is_numerical_value(token):

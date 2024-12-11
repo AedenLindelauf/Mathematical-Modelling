@@ -1,16 +1,12 @@
 from verify_expression import *
 from tree import Tree
-from node import *
 from shunting_yard import *
 import verification
 
 if __name__ == "__main__":
-    
-    # post_fixer_1 = Post_Fixer("2 ^ ( 2 + x ^ 2 * y )")
-    # test_tree = create_tree(post_fixer_1.postfix_notation)
-    # print(test_tree)
 
-    expr = "( 2 - 1 ) ^ a * ( 0 ^ 5 )( 3x + y + 0 ) ^ 2 * 1 * ( ( z / 1 ) + 1 )"
+
+    expr = "3 * xyzabc5def / 4"
 
     converter = SymbolicFunctionConverter()
     # Validate the function
@@ -25,6 +21,8 @@ if __name__ == "__main__":
         # Convert to tree
         post_fixer_2 = Post_Fixer(standardized_expr)
         test_tree = create_tree(post_fixer_2.postfix_notation)
+        # Convert to common-operator-based structure
+        test_tree.convert_to_common_operator_structure()
         # Simplify
         test_tree.simplify()
         print(f"Output:\t {test_tree}")
