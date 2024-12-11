@@ -2,6 +2,7 @@ from verify_expression import *
 from tree import Tree
 from node import *
 from shunting_yard import *
+import verification
 
 if __name__ == "__main__":
     
@@ -9,7 +10,7 @@ if __name__ == "__main__":
     # test_tree = create_tree(post_fixer_1.postfix_notation)
     # print(test_tree)
 
-    expr = "3 * xyzabc5def / 4"
+    expr = "( 2 - 1 ) ^ a * ( 0 ^ 5 )( 3x + y + 0 ) ^ 2 * 1 * ( ( z / 1 ) + 1 )"
 
     converter = SymbolicFunctionConverter()
     # Validate the function
