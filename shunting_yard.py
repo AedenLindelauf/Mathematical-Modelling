@@ -206,21 +206,87 @@ def create_numerical_node(token : str) -> NODE:
 
 
 class Expression:
-    OPERATOR_PRECEDENCES : dict[str, int] = {"^" : 4, "*" : 3, "/" : 3, "+" : 2, "-" : 2}
-    OPERATOR_ASSOCIATIVITY : dict[str, int] = {"^" : "Right", "*" : "Left", "/" : "Left", "+" : "Left", "-" : "Left"}
+    OPERATOR_PRECEDENCES    : dict[str, int]    = {"^" : 4, "*" : 3, "/" : 3, "+" : 2, "-" : 2}
+    OPERATOR_ASSOCIATIVITY  : dict[str, int]    = {"^" : "Right", "*" : "Left", "/" : "Left", "+" : "Left", "-" : "Left"}
+    OPERATOR_NODES          : dict[str, NODE]   = {"+" : ADD, "-" : SUB, "*" : MUL, "/" : DIV, "^" : POW}
 
     def __init__(self, infix_expression : str):
         self.infix_expression = infix_expression.replace(" ","")
         self.tokenize()
-        self.create_tree()
+        self._create_tree()
 
-    def create_tree(self):
-        self.operator_stack : list[str] = []
+    def _create_tree(self):
+        self.operator_stack : list[str]     = []
+        self.node_stack     : list[NODE]    = []
         for self.token in self.tokenized_expression:
-            if is_operator(self.token):
-                self.add_operator_to_stack()
+            if is_numerical_value(self.token):
+                self._create_numerical_node()
+
+            elif is_operator(self.token):
+                self._add_operator_to_stack()
+            
+            elif is_variable(self.token):
+                self.node_stack.append(VAR(self.token))
+            
+            elif is_function(self.token):
+                raise NotImplementedError("Functions are not implemented yet!")
+            
+            elif self.token == "(":
+                self.operator_stack.append(self.token)
+
+            elif self.token == ")":
+                self._pop_operators_in_parentheses()
+
+        
+        while self.operator_stack:
+            added_operator = self.operator_stack.pop()
+            self._add_operator_to_node_stack(added_operator)
     
-    def add_operator_to_stack(self):
+    def _pop_operators_in_parentheses(self) -> None:
+        
+        while True:
+            top_operator = self.operator_stack.pop()
+            if top_operator == "(":
+                break
+            self._add_operator_to_node_stack(top_operator)
+
+        
+    def _create_numerical_node(self) -> None:
+        if "." not in self.token:
+            int_token = int(self.token)
+            self.node_stack.append(CONST(int_token))
+            return
+
+        fraction_start = self.token.index(".")
+        fractional_part = self.token[fraction_start+1:]
+
+        if int(fractional_part) == 0:
+            integer_part = int(self.token[:fraction_start])
+            self.node_stack.append(CONST(integer_part))
+            return
+
+        initial_numerator = int(self.token.replace(".", ""))
+        initial_denominator = 10 ** len(fractional_part)
+        
+        greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
+        final_numerator = initial_numerator // greatest_common_divisor
+        final_denominator = initial_denominator // greatest_common_divisor
+        final_numerator = initial_numerator // greatest_common_divisor
+        final_denominator = initial_denominator // greatest_common_divisor
+        division_node = DIV()
+        division_node.left = CONST(final_numerator)
+        division_node.right = CONST(final_denominator)
+        self.node_stack.append(division_node)
+
+    def _add_operator_to_node_stack(self, operator : str) -> None:
+        right_hand_side = self.node_stack.pop()
+        left_hand_side = self.node_stack.pop()
+        operator_node = self.OPERATOR_NODES[operator]()
+        operator_node.left = left_hand_side
+        operator_node.right = right_hand_side
+        self.node_stack.append(operator_node)
+
+    def _add_operator_to_stack(self):
         while True:
             if not self.operator_stack:
                 break
@@ -238,16 +304,18 @@ class Expression:
 
             associativity_top_operator : str = self.OPERATOR_ASSOCIATIVITY[top_operator]       
             top_operator_is_left_associative : bool = associativity_top_operator == "Left"
+
             if precendence_top_operator > precendence_added_operator or top_operator_is_left_associative:
-                self.postfix_notation.append(top_operator)
-                self.operator_stack.pop()
-                continue
-            
-        self.operator_stack.append(self.operator_stack)
+                added_operator = self.operator_stack.pop()
+                self._add_operator_to_node_stack(added_operator)
+
+                
+
+        self.operator_stack.append(self.token)
         
         
     def tokenize(self) -> None:
-        self.minus_counter          : str       = 0
+        self.minus_counter          : int       = 0
         self.tokenized_expression   : list[str] = []
         self.letter_stack           : list[str] = []
         self.number_stack           : list[str] = []
@@ -270,8 +338,16 @@ class Expression:
             else:
                 self.add_tokens(self.symbol)
 
+            
             if self.next_symbol == "-":
+                print(self.symbol)
                 self.determine_minus_nature()
+                print(self.minus_is_unary)
+            
+            elif not is_operator(self.symbol) and (is_letter(self.next_symbol) or self.next_symbol == "("):
+                self.add_tokens("*")
+                
+
 
     def handle_numerical_part(self):
         self.number_stack.append(self.symbol)
@@ -281,8 +357,6 @@ class Expression:
         
         added_tokens : list[str] = ["".join(self.number_stack)]
 
-        if is_letter(self.next_symbol) or self.next_symbol == "(":
-            added_tokens.append("*")
 
         self.add_tokens(added_tokens)
         self.number_stack = []
@@ -291,8 +365,9 @@ class Expression:
     def add_tokens(self, tokens : str | list[str]) -> None:
         added_tokens : list[str] = list(tokens)
 
+        self.minus_is_unary = False
+
         if self.minus_counter:
-            self.minus_is_unary = False
             added_tokens = ["("]
             added_tokens.extend(["-1","*"] * self.minus_counter)
             added_tokens.extend(tokens)
@@ -345,12 +420,10 @@ class Expression:
 
 
 
-
-
 # wrong place, works only for ints not polynomials
 def calculate_greatest_common_divisor(a : int, b : int) -> int:
-    bigger_value : int = max(a, b)
-    smaller_value : int = min(a, b)
+    bigger_value    : int = max(a, b)
+    smaller_value   : int = min(a, b)
     if a == 0 or b == 0:
         return abs(bigger_value or smaller_value)
     _, remainder = division_with_remainder(bigger_value, smaller_value)
@@ -366,4 +439,5 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
     return sign_a * quotient, remainder       
 
 if __name__ == "__main__":
-    test_expression = Expression("-1.0+  xyz/-x")
+    e = Expression("(1.1+1 / 1)-x")
+    print(e.tokenized_expression)

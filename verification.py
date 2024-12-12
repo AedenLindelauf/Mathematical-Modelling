@@ -51,8 +51,9 @@ def is_numerical_part(symbol : str) -> bool:
     if symbol.isdigit():
         return True
     
-    if symbol == ".":
+    if symbol in (".", "-"):
         return True
+    
     return False
 
 def is_function(token : str) -> bool:
@@ -64,11 +65,21 @@ def is_letter(symbol : str) -> bool:
 def is_variable(token : str) -> bool:
     if is_function(token):
         return False
-    print(set(token))
+    
     return not bool(set(token) - set(LETTERS))
 
 def is_numerical_value(token : str) -> bool:
-    return bool(NUMBER_PATTERN.match(token))
+    if "." in {token[0], token[-1]}:
+        return False
+
+    for index, symbol in enumerate(token):
+        if not is_numerical_part(symbol):
+            return False
+        
+        if index > 0 and symbol == "-":
+            return False
+
+    return True
 
 def is_operator(token : str) -> bool:
     return token in OPERATORS
@@ -172,4 +183,12 @@ def is_valid_expression(expression : str, raise_errors : bool = True) -> bool:
 
 
 if __name__ == "__main__":
-    print(is_variable("xy"))
+    print(is_numerical_value("-1.0"))
+
+
+
+
+
+
+
+

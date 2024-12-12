@@ -195,6 +195,9 @@ class VAR(NODE):
     
     def __str__(self):
         return self.value
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(val = {self.value})"
 
 
 
@@ -206,3 +209,7 @@ class CONST(NODE):
 
     def __str__(self):
         return str(self.value)
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(val = {self.value})"
+    
