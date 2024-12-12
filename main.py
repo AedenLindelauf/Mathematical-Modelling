@@ -6,11 +6,12 @@ if __name__ == "__main__":
 
     # expr = "( a * b * c ) ^ d"
     # expr = "a ^ (b ^ (c ^ d))"
-    expr = "4^(3(a+b))"
+    expr = "3(a+3)"
+    expr = "a*a"
     #expr = "0*a"
-
+    #In de add zitten echt nog wel fouten! Multiply werkt als het goed is.
+    
     #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.
-    #(a+b)*(c+3) -> self.childeren geeft a+b en c. Waar is die 3 heen?
 
     converter = SymbolicFunctionConverter()
     # Validate the function

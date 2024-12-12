@@ -53,7 +53,7 @@ class ADD(FLUID):
         from operands.node import NODE
         from operands.const import CONST
         from operands.mul import MUL
-        
+ 
         # If the child has children, simplify the children
         for child in self.children:
             child.simplify()
@@ -68,6 +68,7 @@ class ADD(FLUID):
              if isinstance(child, CONST): const_sum += child.value
              else: new_children.append(child)
         
+        
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
         if new_children: 
@@ -77,23 +78,13 @@ class ADD(FLUID):
              self.__class__ = CONST
              self.value = const_sum
 
-
-
+       
+        
         #constant*(iets) bij elkaar optellen
-
         adding_together = {}
-        for child in self.children:
-            if isinstance(child, VAR) or isinstance(child, POW): #is dit in nog meer situaties?
-                added = False
-                for expression in adding_together:
-                    if child.compare(expression):
-                        adding_together[expression] = ADD(adding_together[expression], CONST(1))
-                        added = True
-                if not added:
-                    adding_together[child] = CONST(1)
-                #hier moet dan een 1 komen voor var, check if in dic, anders-> en dat toevoegen aan dic
-                
-            elif isinstance(child, MUL):
+        
+        for child in self.children:       
+            if isinstance(child, MUL):
                 for i, grandchild in enumerate(child.children):
                 #if isinstance != var(x), dan kan je buiten haakjes halen?
                     if isinstance(grandchild, CONST):
@@ -102,7 +93,7 @@ class ADD(FLUID):
                             other_factors = MUL(*(other_factors))
                         else:
                             other_factors = other_factors[0]
-                        #constante = grandchild
+                        #print(other_factors, grandchild)
                         added = False
                         for expression in adding_together:
                             if other_factors.compare(expression):
@@ -111,7 +102,18 @@ class ADD(FLUID):
                         if not added:
                             adding_together[other_factors] = grandchild
                         break
-            
+            else:    #if isinstance(child, VAR) or isinstance(child, POW): #is dit in nog meer situaties?
+                added = False
+                for expression in adding_together:
+                    if child.compare(expression):
+                        adding_together[expression] = ADD(adding_together[expression], CONST(1))
+                        added = True
+                if not added:
+                    adding_together[child] = CONST(1)
+                #hier moet dan een 1 komen voor var, check if in dic, anders-> en dat toevoegen aan dic
+        
+        
+
 
 
     # if isinstance(child, ADD):
@@ -127,15 +129,24 @@ class ADD(FLUID):
 
             
         new_children = []
-        if adding_together:
+        if len(adding_together) != 1:
             for expression, constant in adding_together.items():
-                constant.simplify()
-                if constant.value == 1:
-                    new_children.append(expression)
+                if isinstance(constant, CONST):
+                    if constant.value == 1:
+                        new_children.append(expression)
                 else:
                     new_children.append(MUL(constant, expression))
             self.__class__ = ADD
             self.children = new_children
+        else:
+            for expression, constant in adding_together.items():
+                #constant.simplify() of constant.add()
+                new_children.append(constant)
+                new_children.append(expression)
+            self.__class__ = MUL
+            self.children = new_children
+
+        
 
                         
                

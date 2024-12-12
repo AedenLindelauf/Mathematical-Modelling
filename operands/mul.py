@@ -37,20 +37,20 @@ class MUL(FLUID):
         return tree2children == []
 
     def simplify(self):
+
         # If the child has children, simplify the children
         for child in self.children:
             child.simplify()
-
+        
         # Multiply constants. Checking for zero is obsolete since it is taken in the loop.
         const_prod = CONST(1)     # Keeps track of the sum of the values of CONST children.
         new_children = [const_prod] # Keeps track of the children.
         for child in self.children:
-             
              # If the child is a constant, update the const_prod value, otherwise 
              # append the child to the new_children array which takes O(1) amortized time.
              if isinstance(child, CONST): const_prod.value *= child.value
              else: new_children.append(child)
-        
+
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
         if const_prod.value == 0: 
@@ -59,7 +59,7 @@ class MUL(FLUID):
         else:
              self.children = new_children
         
-        
+
         # a^b * a^c = a^(b+c)
         base_exponent = {}
         new_children_exponent = []
@@ -102,9 +102,9 @@ class MUL(FLUID):
                 new_children_exponent.append(POW(exponent, base))
         
         if len(new_children_exponent) == 1:
-            self.__class__ = MUL
-            self.children = new_children_exponent
-#Dit werkt? Moet IIG anders!!
+            for base, exponent in base_exponent.items():
+                self = POW(exponent, base)
+                #is dit zo goed?
         else: 
             self.__class__ = MUL
             self.children = new_children_exponent
@@ -115,13 +115,12 @@ class MUL(FLUID):
 
         #a * (b + c)
         expansion = []
-        print(self.children[1])
+
         for i, child in enumerate(self.children):
 
             if isinstance(child, ADD):
-                print(child.children)
                 for grandchild in child.children:
-                    other_factors = self.children[:i] + self.children[i+1:] #everything except the expansion term
+                    other_factors = self.children.copy()[:i] + self.children.copy()[i+1:] #everything except the expansion term
                     expanded = MUL(*(other_factors + [grandchild]))
                     expansion.append(expanded)
                 self.__class__ = ADD
