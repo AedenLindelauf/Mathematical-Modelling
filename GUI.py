@@ -32,29 +32,42 @@ class GUI:
         self.input_expr = Text(root, height=5, width=50)
         self.input_expr.grid(row=0, column=1, columnspan = 2, pady=(10, 10), sticky='W' )
 
+        self.input_expr.bind('<KeyRelease>', self._on_update)
+        self.input_expr.focus_set()    
+
         self.output_expr = Text(root, height=5, width=50)
         self.output_expr.grid(row=1, column=1, columnspan = 2, pady=(10, 10), sticky='W' )
 
-        # Create a Frame object
-        frame = Frame(root)
-        frame.grid(row=1, column=3, columnspan=2)
-
         # Add a label widget in the frame
-        label = Label(frame)
-        label.pack()
+        label_input = Label(root)
+        label_input.grid(row=0, column=3, padx=(10,10), pady=(10,10), sticky='W')
 
         # Define the figure size and plot the figure
-        fig = matplotlib.figure.Figure(figsize=(2, 1), dpi=100, frameon=False)
-        matplotlib.pyplot.axis('off')
-        self.wx = fig.add_subplot(111)
-        self.canvas = FigureCanvasTkAgg(fig, master=label)
-        self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
-        self.canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
-        self.wx.axis('off')
+        fig = matplotlib.figure.Figure(figsize=(2.5, 0.825), dpi=100, frameon=False)
+        self.wx_label_input = fig.add_subplot(111)
+        self.canvas_input = FigureCanvasTkAgg(fig, master=label_input)
+        self.canvas_input.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+        self.canvas_input._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
+        self.wx_label_input.axis('off')
 
         # Set the visibility of the Canvas figure
-        self.wx.get_xaxis().set_visible(False)
-        self.wx.get_yaxis().set_visible(False)
+        self.wx_label_input.get_xaxis().set_visible(False)
+        self.wx_label_input.get_yaxis().set_visible(False)
+
+        label_output = Label(root)
+        label_output.grid(row=1, column=3, padx=(10,10), pady=(10,10), sticky='W')
+
+        # Define the figure size and plot the figure
+        fig = matplotlib.figure.Figure(figsize=(2.5, 0.825), dpi=100, frameon=False)
+        self.wx_label_output = fig.add_subplot(111)
+        self.canvas_output = FigureCanvasTkAgg(fig, master=label_output)
+        self.canvas_output.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+        self.canvas_output._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
+        self.wx_label_output.axis('off')
+
+        # Set the visibility of the Canvas figure
+        self.wx_label_output.get_xaxis().set_visible(False)
+        self.wx_label_output.get_yaxis().set_visible(False)
 
         button_simplify = Button(root, text="Simplify", command=lambda: self._simplify(), font=("Helvetica", 10, "bold") )
         button_simplify.grid(row=2, column=1)
@@ -72,18 +85,18 @@ class GUI:
         # Execute Tkinter
         root.mainloop()
 
-    def _simplify(self):
-        def graph(text):
-            # Get the Entry Input
-            tmptext = self.input_expr.get("1.0","end-1c")
-            tmptext = "$"+tmptext+"$"
-            # Clear any previous Syntax from the figure
-            self.wx.clear()
-            self.wx.text(0.5, 0.5, tmptext, fontsize = 12, ha='center', transform=self.wx.transAxes)
-            self.canvas.draw_idle()
-            self.wx.axis('off')
-        graph("")
+    def _on_update(self, event):
+        # Get the Entry Input
+        tmptext = self.input_expr.get("1.0","end-1c")
+        tmptext = "$"+tmptext+"$"
+        # Clear any previous Syntax from the figure
+        self.wx_label_input.clear()
+        self.wx_label_input.text(0.5, 0.5, tmptext, fontsize = 12, ha='center', transform=self.wx_label_input.transAxes)
+        self.canvas_input.draw_idle()
+        self.wx_label_input.axis('off')
 
+    def _simplify(self):
+        pass
         # expr = self.input_expr.get("1.0","end-1c")
         # self.output_expr.delete(1.0, END)
         # if not expr: return self.output_expr.insert(END, "0")
