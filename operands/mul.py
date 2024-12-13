@@ -3,7 +3,7 @@ from operands.const import CONST
 from operands.var import VAR
 from operands.node import NODE
 from operands.add import ADD
-from operands.pow import POW
+
 
 class MUL(FLUID):
     def __init__(self, *args):
@@ -128,6 +128,7 @@ class MUL(FLUID):
                 break
      
     def differentiate(self, variable: str):
+        from operands.pow import POW
         # We only implement differentiation for the binary tree. If there are more than 2 children, we raise an error.
         if len(self.children) > 2:
             raise AssertionError("Not implemented for non-binary trees")
