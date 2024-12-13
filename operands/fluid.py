@@ -3,8 +3,17 @@ from operands.node import NODE
 class FLUID(NODE):
     def __init__(self, *args):
         self.children = [arg for arg in args]
+
+    @property
+    def children(self):
+        # Getter method
+        return self.__children
+    
+    @children.setter
+    def children(self, list_of_children: list[NODE]):
         # Not really necessary, just a sanity check
-        if len(self.children) < 2: raise Exception("Fluid nodes need two or more operands!") 
+        assert len(list_of_children) >= 2, "Fluid nodes need two or more operands!"
+        self.__children = list_of_children
 
     # In this function we find all the "adjacent" similar operators (so all +'s or *'s)
     def find_all_similar_adjacent_operators(self) -> list[NODE]:

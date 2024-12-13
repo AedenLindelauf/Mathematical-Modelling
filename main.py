@@ -8,6 +8,8 @@ if __name__ == "__main__":
     # expr = "a ^ (b ^ (c ^ d))"
     expr = "3(a+3)"
     expr = "a*a"
+    expr = "1*2 + 0*x"
+    expr = "1+2"
     #expr = "0*a"
     #In de add zitten echt nog wel fouten! Multiply werkt als het goed is.
     

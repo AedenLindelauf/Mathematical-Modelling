@@ -77,6 +77,7 @@ class ADD(FLUID):
         else:
              self.__class__ = CONST
              self.value = const_sum
+             return
 
        
         
