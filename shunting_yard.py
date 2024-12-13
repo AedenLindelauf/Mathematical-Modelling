@@ -1,5 +1,15 @@
 from tree import Tree
-from node import *
+from operands.add import ADD
+from operands.binary import BINARY
+from operands.const import CONST
+from operands.div import DIV
+from operands.fluid import FLUID
+from operands.mul import MUL
+from operands.node import NODE
+from operands.pow import POW
+from operands.sub import SUB
+from operands.var import VAR
+
 
 def is_function(token : str) -> bool:
     return False
@@ -89,11 +99,7 @@ def create_tree(post_fix_notation : list[str]) -> Tree:
     node_stack : list[NODE] = []
     for token in post_fix_notation:
         if is_operator(token):
-            right_hand_side = node_stack.pop()
-            left_hand_side = node_stack.pop()
-            operator_node = OPERATOR_NODES[token]()
-            operator_node.left = left_hand_side
-            operator_node.right = right_hand_side
+            operator_node = OPERATOR_NODES[token](node_stack.pop(), node_stack.pop()) # Need to feed the children into the initialization
             node_stack.append(operator_node)
 
         if token.isdigit():

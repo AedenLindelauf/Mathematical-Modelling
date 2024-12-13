@@ -1,8 +1,16 @@
-from node import *
+from operands.node import *
+from operands.binary import BINARY
+from operands.fluid import FLUID
+from operands.const import CONST
+from operands.var import VAR
+from operands.mul import MUL
+from operands.add import ADD 
+from operands.sub import SUB
 
 class Tree:
     def __init__(self, root: NODE):
         self.root = root
+        self.preprocess(root)
 
     def __str__(self):
         return self.root.__str__()
@@ -10,33 +18,34 @@ class Tree:
     def simplify(self): 
         self.preprocess(self.root)
         self.root.simplify()
+        #self.root.simplify()
+        #self.root.simplify()
+        # self.root.simplify()
+
+
+    def convert_to_common_operator_structure(self):
+        # Start the conversion process
+        if isinstance(self.root, (BINARY, FLUID) ):
+            self.root.convert_to_common_operator_structure()
     
     def differentiate(self, variable: str = "x"):
         # self.preprocess(self.root)
         return Tree(self.root.differentiate(variable))
 
     def preprocess(self, node):
-        if isinstance(node, (CONST, int) ) or (node is None): return
-
-        # This is basically to ensure the situation that 2*x + x = 2*x + 1*x = (2+1) * x
-        if isinstance(node , VAR):
-            v = node.value
-            node.__class__ = MUL
-            node.left = CONST(1)
-            node.right = VAR(v)
-            return
-
-        self.preprocess(node.left)
-        self.preprocess(node.right)
-
-        if isinstance(node, MUL) and isinstance(node.right, CONST):
-            node.left, node.right = node.right, node.left
-    
+        # This function still assumes that the tree is binary (as it was initially created)
+        if isinstance(node, (CONST, VAR) ) or (node is None): return
+        if isinstance(node, MUL) and isinstance(node.children[1], CONST):
+            node.children[0], node.children[1] = node.children[1], node.children[0]
         
-    def postprocess(self, node):
+        # Change every SUB(a,b) node into ADD(a, MUL(CONST(-1), b))
+        if isinstance(node, SUB):
+            a = node.children[0]
+            b = node.children[1]
+            node.__class__ = ADD
+            node.children[0] = a
+            node.children[1] = MUL(CONST(-1), b)
 
-        if isinstance(node, MUL):
-            # Maybe is checking the right branch unnecessary because of preprocessing.
-            # Check whether multiplied by 1.
-            if not node._check_identity_element(self.left, self.right, 1):
-                node._check_identity_element(self.right, self.left, 1)
+
+        self.preprocess(node.children[0])
+        self.preprocess(node.children[1])
