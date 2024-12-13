@@ -18,6 +18,10 @@ class Tree:
     def simplify(self): 
         self.preprocess(self.root)
         self.root.simplify()
+        #self.root.simplify()
+        #self.root.simplify()
+        # self.root.simplify()
+
 
     def convert_to_common_operator_structure(self):
         # Start the conversion process

@@ -19,6 +19,25 @@ class POW(BINARY):
 
         return res
 
+    def compare(tree1, tree2, exponent = True):
+        if tree1.__class__ != tree2.__class__: # Is er een ^ node die bv geljk kan zijn aan een * node tree? anders klopt dit niet
+            return False
+        base1 = tree1.children[0]
+        base2 = tree2.children[0]
+        exp1 = tree1.children[1]
+        exp2 = tree2.children[1]
+
+        if not base1.compare(base2):
+            return False
+        elif exponent:
+            if (exp1.__class__ == exp2.__class__):
+                return exp1.compare(exp2)  #Hier moet situatie komen waarbij zowel base als exponent gelijk moeten zijn (addition)
+            else: 
+                return False
+        else:
+            return True
+
+
     def simplify(self):
         from operands.mul import MUL
 
@@ -44,6 +63,9 @@ class POW(BINARY):
         elif isinstance(self.children[1], CONST) and ( self.children[1].value == 0 ):
             self.__class__ = CONST
             self.value = 1
+        
+
+
 
         # (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
         if isinstance(a, MUL):
