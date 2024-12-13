@@ -1,6 +1,6 @@
 from operands.fluid import FLUID
 from operands.var import VAR
-from operands.pow import POW
+#from operands.pow import POW
 
 class ADD(FLUID):
     def __str__(self):
@@ -146,7 +146,13 @@ class ADD(FLUID):
             self.__class__ = MUL
             self.children = new_children
 
-        
-
+    def differentiate(self, variable: str):
+        # We only implement differentiation for the binary tree. If there are more than 2 children, we raise an error.
+        if len(self.children) > 2:
+            raise AssertionError("Not implemented for non-binary trees")
+        # We use the differentiation rule for addition: (f + g)' = f' + g'.    
+        new_left = self.children[0].differentiate(variable)
+        new_right = self.children[1].differentiate(variable)
+        return ADD(new_left, new_right)
                         
                

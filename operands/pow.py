@@ -1,6 +1,8 @@
 from operands.binary import BINARY
 from operands.const import CONST
 from operands.var import VAR
+from operands.sub import SUB
+from operands.mul import MUL
 from copy import deepcopy
 
 class POW(BINARY):
@@ -36,6 +38,17 @@ class POW(BINARY):
                 return False
         else:
             return True
+        
+    def is_variable_in_exponent(self, variable: str, node = None) -> bool:
+        if node == None:
+            node = self.children[1]
+        if node.__class__ in (VAR, CONST):
+            if node.value == variable:
+                return True
+            else: return False
+        else:
+            return any(self.is_variable_in_exponent(variable, child) for child in node.children)
+        
 
 
     def simplify(self):
@@ -89,3 +102,18 @@ class POW(BINARY):
             c = self.children[1].children[1]
             self.children[1] = MUL(b, c)
             self.children[1].simplify()
+
+    def differentiate(self, variable: str):
+        # Since we don't have exp or ln implemented, we only accept expressions where the variable is not in the exponent.
+        assert not self.is_variable_in_exponent(variable), "Not implemented yet"
+        # Power rule: (f ^ g)' = g * f ^ (g - 1) * f'
+        base = self.children[0]
+        exponent = self.children[1]
+        
+        new_exponent = SUB(1, exponent)
+        base_derivative = base.differentiate(variable)
+        new_pow = POW(new_exponent, base)
+
+        return MUL(exponent, base_derivative, new_pow)
+        
+

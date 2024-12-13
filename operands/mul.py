@@ -127,6 +127,20 @@ class MUL(FLUID):
                 self.children = expansion
                 break
      
+    def differentiate(self, variable: str):
+        # We only implement differentiation for the binary tree. If there are more than 2 children, we raise an error.
+        if len(self.children) > 2:
+            raise AssertionError("Not implemented for non-binary trees")
+        # We use the product rule: (f * g)' = f * g' + f' * g.
+        f = self.children[0]
+        g = self.children[1]
+
+        f_derivative = f.differentiate(variable)
+        g_derivative = g.differentiate(variable)
+
+        new_left = MUL(f, g_derivative)
+        new_right = MUL(f_derivative, g)
+        return ADD(new_left, new_right)
 
                 
         

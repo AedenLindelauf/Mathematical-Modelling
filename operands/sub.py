@@ -13,3 +13,9 @@ class SUB(BINARY):
             res = self.children[0].value - self.children[1].value
             self.__class__ = CONST
             self.value = res
+
+    def differentiate(self, variable: str):
+        # Same rules apply as for add.
+        new_left = self.children[0].differentiate(variable)
+        new_right = self.children[1].differentiate(variable)
+        return SUB(new_right,new_left)

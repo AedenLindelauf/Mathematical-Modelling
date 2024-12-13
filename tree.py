@@ -10,7 +10,7 @@ from operands.sub import SUB
 class Tree:
     def __init__(self, root: NODE):
         self.root = root
-        self.preprocess(root)
+        #self.preprocess(root)
 
     def __str__(self):
         return self.root.__str__()
