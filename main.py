@@ -6,8 +6,8 @@ if __name__ == "__main__":
 
     # expr = "( a * b * c ) ^ d"
     # expr = "a ^ (b ^ (c ^ d))"
-    expr = "3(a+3)"
-    expr = "a*a"
+    expr = "6^6-a+a+a(c+d)-ac-ad+a*a-a*a"
+
     #expr = "0*a"
     #In de add zitten echt nog wel fouten! Multiply werkt als het goed is.
     

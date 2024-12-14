@@ -89,7 +89,7 @@ class ADD(FLUID):
                 #if isinstance != var(x), dan kan je buiten haakjes halen?
                     if isinstance(grandchild, CONST):
                         other_factors = child.children[:i] + child.children[i+1:]
-                        if len(other_factors) != 1:
+                        if len(other_factors) > 1:
                             other_factors = MUL(*(other_factors))
                         else:
                             other_factors = other_factors[0]

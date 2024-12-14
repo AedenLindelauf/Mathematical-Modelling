@@ -18,8 +18,8 @@ class Tree:
     def simplify(self): 
         self.preprocess(self.root)
         self.root.simplify()
-        #self.root.simplify()
-        #self.root.simplify()
+        self.root.simplify()
+        self.root.simplify()
         # self.root.simplify()
 
 
