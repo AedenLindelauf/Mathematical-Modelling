@@ -10,6 +10,11 @@ if __name__ == "__main__":
     expr = "a*a"
     expr = "1*2 + 0*x"
     expr = "1+2"
+    expr = "a(x + 1)"
+    expr = "x + 1 + 2x"
+    expr = "x^2 + 1 + 2*x^2"
+    expr = "ab^2 + 2ab + 2*x^2 + 3*x^2 + x^5 + 2ab + 5 * ab^2"
+    expr = "(a+b)^2 + 2*((a+b)^2)"
     #expr = "0*a"
     #In de add zitten echt nog wel fouten! Multiply werkt als het goed is.
     
