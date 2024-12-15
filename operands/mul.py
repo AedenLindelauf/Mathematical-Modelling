@@ -6,9 +6,6 @@ from operands.add import ADD
 from operands.pow import POW
 
 class MUL(FLUID):
-    def __init__(self, *args):
-        super().__init__(*args)
-
     def __str__(self):
         string = []
 
@@ -53,9 +50,10 @@ class MUL(FLUID):
 
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
-        if const_prod.value == 0: 
+        if len(new_children) == 1: 
              self.__class__ = CONST
-             self.value = 0
+             self.value = const_prod.value
+             return # No other simplifcations applicable to CONST.
         else:
              self.children = new_children
         
