@@ -174,13 +174,11 @@ class ADD(FLUID):
         for i, child in enumerate(new_children):
             if isinstance(child,MUL):
                 replacing_children = [c for c in child.children if not (isinstance(c, CONST) and c.value == 1)]
-            else: replacing_children = []
-
+            else: continue
             if len(replacing_children) == 1:
                 new_children[i] = replacing_children[0]
-            elif len(replacing_children) == 0:
-
-                new_children[i] = CONST(1)
+            # elif len(replacing_children) == 0:
+            #     new_children[i] = CONST(1)
             else:
                 child.children = replacing_children
 
