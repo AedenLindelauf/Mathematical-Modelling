@@ -76,8 +76,13 @@ class ADD(FLUID):
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
         if new_children: 
-             self.children = new_children
-             if const_sum != 0: self.children.append(CONST(const_sum))
+             if const_sum != 0: new_children.append(CONST(const_sum))
+             if len(new_children) == 1:
+                term = new_children[0]
+                self.__class__ = term.__class__
+                self.children = term.children
+             else:
+                self.children = new_children
         else:
              self.__class__ = CONST
              self.value = const_sum
