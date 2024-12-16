@@ -79,6 +79,9 @@ class MUL(FLUID):
         else:
              self.children = new_children
         
+        if self.decompose()[0].value == 0:
+            self.__class__ = CONST
+            self.value = 0
 
         # a^b * a^c = a^(b+c)
         base_exponent = {}

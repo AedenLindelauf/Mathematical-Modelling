@@ -12,7 +12,7 @@ if __name__ == "__main__":
     expr = "1+2"
     expr = "a(x + 1)"
     expr = "x + 1 + 2x" 
-    # expr = "3x^2 - 3x^2" 
+    expr = "3x^2 - 3x^2" 
     # expr = "x^2 + 1 + 2*x^2"
     # expr = "ab^2 + 2ab + 2*x^2 + 3*x^2 + x^5 + 2ab + 5 * ab^2"
     # expr = "(a+b)^2 + 2*((a+b)^2)"
