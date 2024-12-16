@@ -160,7 +160,9 @@ class ADD(FLUID):
             self.children = new_children
         else:
             self.__class__ = new_children[0].__class__
-            self.children = new_children
+            if isinstance(new_children[0], MUL):
+                self.children = new_children[0].children
+            else: self.children = new_children
                     
 
         
