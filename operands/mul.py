@@ -4,6 +4,7 @@ from operands.var import VAR
 from operands.node import NODE
 from operands.add import ADD
 from operands.pow import POW
+from copy import deepcopy
 
 class MUL(FLUID):
     def __str__(self):
@@ -16,6 +17,27 @@ class MUL(FLUID):
         
         return " * ".join(string)
     
+
+    def decompose(self):
+            """
+            Returns the const (1 if not present) and the remaining term.
+            """
+            f = deepcopy(self) # f is constructed as f = a * g
+            a = CONST(1)
+
+            for index in range(len(f.children)):
+                item = f.children[index]
+                if isinstance(item, CONST):
+                    a = item
+                    # Swap element at index "index" and last index. 
+                    f.children[index] = f.children[-1]
+                    f.children[-1] = item
+                    # Remove last element.
+                    f.children.pop()
+                    break
+            return a, f
+
+
     def compare(tree1, tree2):
         if tree1.__class__ != tree2.__class__: 
             return False
