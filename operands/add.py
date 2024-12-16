@@ -91,7 +91,6 @@ class ADD(FLUID):
                  self.children = new_children
              else:
                  #hier moet heel die node vervangen worden, hoe doe je dat? 
-                print(new_children)
                 self.children = new_children
         else:
              self.__class__ = CONST
@@ -172,6 +171,21 @@ class ADD(FLUID):
          # If there is still one more element in the array, then we need to copy it as well.
         if len(self.children) == 1: new_children.append(self.children[0])
 
+        for i, child in enumerate(new_children):
+            if isinstance(child,MUL):
+                replacing_children = [c for c in child.children if not (isinstance(c, CONST) and c.value == 1)]
+            else: replacing_children = []
+
+            if len(replacing_children) == 1:
+                new_children[i] = replacing_children[0]
+            elif len(replacing_children) == 0:
+
+                new_children[i] = CONST(1)
+            else:
+                child.children = replacing_children
+
+
+
         if len(new_children) > 1:
             self.children = new_children
         else:
@@ -181,15 +195,16 @@ class ADD(FLUID):
             else: self.children = new_children
 
         
-        
-
-        
-                    
-
-        
         # ===========================================================================================
         # =========================================== END ===========================================
         # ===========================================================================================
+
+        for child in self.children:
+            if isinstance(child, ADD):
+                self.children.remove(child)
+                for grandchild in child.children:
+                    self.children.append(grandchild)
+
 
         # #dingen optellen van Wes  
         # niet helemaal meer compleet 

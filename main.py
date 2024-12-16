@@ -18,14 +18,14 @@ if __name__ == "__main__":
     # expr = "x+x"
     # expr = "ab+ac+ab"
     # expr="16b^4 +a+2*2*4^a*4^a+3*6+a+b*b^3"
-    expr = "a+b"
+    # expr = "a*(a+d)+b"
     # expr = "a*b"
   
 
 
     # expr = "x^2 + 1 + x^2"
     # expr = "ab^2 + 2ab + 2*x^2 + 3*x^2 + x^5 + 2ab + 5 * ab^2"
-    # expr = "(a+b)^2 + 2*((a+b)^2)"
+    expr = "(a+b)^2 + 2*((a+b)^2)"
     # expr = "0*a"
     #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.
 

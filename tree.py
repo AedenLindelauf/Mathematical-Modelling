@@ -17,8 +17,10 @@ class Tree:
     
     def simplify(self): 
         self.preprocess(self.root)
-        for i in range(4):
+        for i in range(5):
             self.root.simplify()
+            
+        for oui in self.root.children: print(oui)
 
         # self.root.simplify()
 
