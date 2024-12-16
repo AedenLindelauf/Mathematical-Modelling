@@ -17,9 +17,9 @@ class Tree:
     
     def simplify(self): 
         self.preprocess(self.root)
-        self.root.simplify()
-        self.root.simplify()
-        self.root.simplify()
+        for i in range(4):
+            self.root.simplify()
+
         # self.root.simplify()
 
 

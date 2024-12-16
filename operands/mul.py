@@ -44,6 +44,8 @@ class MUL(FLUID):
         tree1children = tree1.children.copy()
         tree2children = tree2.children.copy()
         for child1 in tree1children:
+            if child1.compare(CONST(1)):
+                continue
             something_removed = False
             for child2 in tree2children:
                 if child1.compare(child2):
@@ -52,8 +54,15 @@ class MUL(FLUID):
                     break
             if not something_removed:
                 return False
-        
-        return tree2children == []
+        if tree2children:
+            for leftover in tree2children:
+                if not leftover.compare(CONST(1)):
+                    return False
+            return True
+        else: 
+            return True
+
+
 
     def simplify(self):
 
@@ -76,6 +85,8 @@ class MUL(FLUID):
              self.__class__ = CONST
              self.value = const_prod.value
              return # No other simplifcations applicable to CONST.
+        elif new_children[0].value == 1:
+            pass
         else:
              self.children = new_children
         
@@ -83,6 +94,7 @@ class MUL(FLUID):
         # a^b * a^c = a^(b+c)
         base_exponent = {}
         new_children_exponent = []
+
         for child in self.children:
 
             if not isinstance(child, POW):
@@ -111,7 +123,6 @@ class MUL(FLUID):
                 if not added:
                     base_exponent[base] = exponent
 
-
         for base, exponent in base_exponent.items():
             if exponent.__class__ == CONST:
                 if exponent.value == 1:
@@ -120,10 +131,13 @@ class MUL(FLUID):
                     new_children_exponent.append(POW(exponent, base))
             else:
                 new_children_exponent.append(POW(exponent, base))
-        
+
         if len(new_children_exponent) == 1:
             for base, exponent in base_exponent.items():
-                self = POW(exponent, base)
+                self.__class__ = POW
+                self.children = [base, exponent]
+                # self = POW(exponent, base)
+                return
                 #is dit zo goed?
         else: 
             self.__class__ = MUL
@@ -134,10 +148,19 @@ class MUL(FLUID):
 
 
         #a * (b + c)
+
+        #eerst het probleem van die a *(a*1) oplossen, kan weg als *1 weg is.
+        for child in self.children:
+            if isinstance(child, MUL):
+                self.children.remove(child)
+                for grandchild in child.children:
+                    self.children.append(grandchild)
+
+
         expansion = []
 
         for i, child in enumerate(self.children):
-
+            
             if isinstance(child, ADD):
                 for grandchild in child.children:
                     other_factors = self.children.copy()[:i] + self.children.copy()[i+1:] #everything except the expansion term

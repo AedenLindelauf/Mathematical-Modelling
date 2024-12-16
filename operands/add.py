@@ -75,19 +75,35 @@ class ADD(FLUID):
         
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
+        # print(new_children)
+        # if new_children: 
+        #      self.children = new_children
+        #      if const_sum != 0: self.children.append(CONST(const_sum))
+        # else:
+        #      self.__class__ = CONST
+        #      self.value = const_sum
+        #      return
+        
+        #changed it into this:
         if new_children: 
-             self.children = new_children
-             if const_sum != 0: self.children.append(CONST(const_sum))
+             if const_sum != 0: 
+                 new_children.append(CONST(const_sum))
+                 self.children = new_children
+             else:
+                 #hier moet heel die node vervangen worden, hoe doe je dat? 
+                print(new_children)
+                self.children = new_children
         else:
              self.__class__ = CONST
              self.value = const_sum
              return
 
+
+
         # ===========================================================================================
         # =========================================== END ===========================================
         # ===========================================================================================
        
-
 
         # ===========================================================================================
         # ========================== a * f + b * f = (a+b) * f, a,b \in \Q ==========================
@@ -117,31 +133,8 @@ class ADD(FLUID):
                         contains_const = True
        
         
-        #constant*(iets) bij elkaar optellen
-        adding_together = {}
         
-        for child in self.children:       
-            if isinstance(child, MUL):
-                for i, grandchild in enumerate(child.children):
-                #if isinstance != var(x), dan kan je buiten haakjes halen?
-                    if isinstance(grandchild, CONST):
-                        other_factors = child.children[:i] + child.children[i+1:]
-                        if len(other_factors) > 1:
-                            other_factors = MUL(*(other_factors))
-                        else:
-                            other_factors = other_factors[0]
-                        #print(other_factors, grandchild)
-                        added = False
-                        for expression in adding_together:
-                            if other_factors.compare(expression):
-                                adding_together[expression] = ADD(adding_together[expression], grandchild)
-                                added = True
-                        if not added:
-                            adding_together[other_factors] = grandchild
-                        break
-
-                if not contains_const: 
-                    self.children[i].children.append(CONST(1))
+        
 
         # Everything is a MUL class.
         i: int = len(self.children) - 1
@@ -176,9 +169,9 @@ class ADD(FLUID):
             self.children.pop()
             i -= 1
 
-        # If there is still one more element in the array, then we need to copy it as well.
+         # If there is still one more element in the array, then we need to copy it as well.
         if len(self.children) == 1: new_children.append(self.children[0])
-        
+
         if len(new_children) > 1:
             self.children = new_children
         else:
@@ -186,11 +179,44 @@ class ADD(FLUID):
             if isinstance(new_children[0], MUL):
                 self.children = new_children[0].children
             else: self.children = new_children
+
+        
+        
+
+        
                     
 
         
         # ===========================================================================================
         # =========================================== END ===========================================
         # ===========================================================================================
-                        
-               
+
+        # #dingen optellen van Wes  
+        # niet helemaal meer compleet 
+        # # 
+        # # #constant*(iets) bij elkaar optellen
+        # adding_together = {}  
+        # for child in self.children:       
+        #     if isinstance(child, MUL):
+        #         contains_const = False
+        #         for i, grandchild in enumerate(child.children):
+        #         #if isinstance != var(x), dan kan je buiten haakjes halen?
+        #             if isinstance(grandchild, CONST):
+        #                 contains_const = True
+        #                 other_factors = child.children[:i] + child.children[i+1:]
+        #                 if len(other_factors) > 1:
+        #                     other_factors = MUL(*(other_factors))
+        #                 else:
+        #                     other_factors = other_factors[0]
+        #                 #print(other_factors, grandchild)
+        #                 added = False
+        #                 for expression in adding_together:
+        #                     if other_factors.compare(expression):
+        #                         adding_together[expression] = ADD(adding_together[expression], grandchild)
+        #                         added = True
+        #                 if not added:
+        #                     adding_together[other_factors] = grandchild
+        #                 break
+
+        #         if not contains_const: 
+        #             self.children[i].children.append(CONST(1))     
