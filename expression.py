@@ -84,8 +84,6 @@ class Expression:
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
         final_numerator = initial_numerator // greatest_common_divisor
         final_denominator = initial_denominator // greatest_common_divisor
-        final_numerator = initial_numerator // greatest_common_divisor
-        final_denominator = initial_denominator // greatest_common_divisor
         division_node = DIV()
         division_node.left = CONST(final_numerator)
         division_node.right = CONST(final_denominator)
