@@ -1,11 +1,24 @@
-from verify_expression import *
 from tree import Tree
-from shunting_yard import *
+from expression import *
+import verification
 
 if __name__ == "__main__":
+    e = Expression("(x+1)/2")
+    test_tree = e.tree
+    
+    
+
 
     # expr = "( a * b * c ) ^ d"
     # expr = "a ^ (b ^ (c ^ d))"
+    # expr = "3(a+3)"
+    # expr = "a*a"
+    # expr = "1*2 + 0*x"
+    # expr = "1+2"
+    # expr = "a(x + 1)"
+    # expr = "x + 1 + 2x" 
+    # expr = "3x^2 - 3x^2" 
+    # expr = "x^2 + 1 + 2*x^2"
     # expr = "6^6-a+a+a(c+d)-ac-ad+a*a-a*a"
 
     # expr = "3(a+3)+5"
@@ -70,8 +83,8 @@ if __name__ == "__main__":
 
         
 
-        # expr_compare1 = "(1+b*d)/(18+x*cd3)"
-        # expr_compare2 = "(d*b +1)/(dx*c3+18)"
+        # expr_compare1 = "(b + a + (b+a)*(b+a) + a + 2^2)"
+        # expr_compare2 = "(a + b + (a+b)*(b+a) + a + 2^f)"
         # # Standardize the function
         # standardized_expr1 = converter.standardize_function(expr_compare1)
         # standardized_expr2 = converter.standardize_function(expr_compare2)
