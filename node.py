@@ -1,6 +1,57 @@
 # Parent class for inheritance.
+from verification import *
+from typing import Self
+
 class NODE:
     def __init__(self): pass
+
+    def __mul__(self, other):
+        converted_other = self.convert_other(other)
+        return MUL(self, converted_other)
+    
+    def __rmul__(self, other):
+        converted_other = self.convert_other(other)
+        return MUL(converted_other, self)
+    
+    def __add__(self, other):
+        converted_other = self.convert_other(other)
+        return ADD(self, converted_other)
+    
+    def __radd__(self, other):
+        converted_other = self.convert_other(other)
+        return ADD(converted_other, self)
+    
+    def __sub__(self, other):
+        converted_other = self.convert_other(other)
+        return SUB(self, converted_other)
+    
+    def __rsub__(self, other):
+        converted_other = self.convert_other(other)
+        return SUB(converted_other, self)
+
+    def __div__(self, other):
+        converted_other = self.convert_other(other)
+        return DIV(self, converted_other)
+    
+    def __rdiv__(self, other):
+        converted_other = self.convert_other(other)
+        return DIV(converted_other, self)
+    
+    @staticmethod
+    def convert_other(other : Self | int | str) -> Self:
+        if isinstance(other, NODE):
+            return other
+        
+        elif isinstance(other, int):
+            return CONST(other)
+        
+        elif isinstance(other, str) and is_variable(other):
+            return VAR(other)
+
+        else:
+            raise NotImplementedError(f"Cannot do that operation with a NODE and a {other.__class__.__name__}")
+    
+
 
 
 
@@ -213,3 +264,12 @@ class CONST(NODE):
     def __repr__(self):
         return f"{self.__class__.__name__}(val = {self.value})"
     
+    def __eq__(self, other) -> bool:
+        if isinstance(other, CONST):
+            return self.value == other.value
+        
+        return self.value == other
+        
+
+if __name__ == "__main__":
+    print("a" * DIV(1, 2))
