@@ -1,3 +1,4 @@
+from verify_expression import *
 from tree import Tree
 from node import *
 from shunting_yard import *
