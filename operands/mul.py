@@ -94,63 +94,8 @@ class MUL(FLUID):
             self.__class__ = CONST
             self.value = 0
 
-        # a^b * a^c = a^(b+c)
-        base_exponent = {}
-        new_children_exponent = []
 
-        for child in self.children:
-
-            if not isinstance(child, POW):
-                base = child
-                exponent = CONST(1)
-                added = False
-                
-                for saved_base in base_exponent:
-                    if base.compare(saved_base):
-                        base_exponent[saved_base] = ADD(base_exponent[saved_base], exponent)
-# .simplify toevoegen hier? 
-                        added = True
-                        break
-                if not added:
-                    base_exponent[base] = exponent
-            else:
-                base = child.children[0]
-                exponent = child.children[1]
-                added = False
-                for saved_base in base_exponent:
-                    if base.compare(saved_base):
-                        base_exponent[saved_base] = ADD(base_exponent[saved_base], exponent)
-# .simplify toevoegen hier?
-                        added = True
-                        break
-                if not added:
-                    base_exponent[base] = exponent
-
-        for base, exponent in base_exponent.items():
-            if exponent.__class__ == CONST:
-                if exponent.value == 1:
-                    new_children_exponent.append(base)
-                else: 
-                    new_children_exponent.append(POW(exponent, base))
-            else:
-                new_children_exponent.append(POW(exponent, base))
-
-        if len(new_children_exponent) == 1:
-            for base, exponent in base_exponent.items():
-                self.__class__ = POW
-                self.children = [base, exponent]
-                # self = POW(exponent, base)
-                return
-                #is dit zo goed?
-        else: 
-            self.__class__ = MUL
-            self.children = new_children_exponent
-        #wat als het maar 1 power wordt? if len(new_child..) == 1: leaf maken, anders deze optie?
-
-        #end of adding powers
-
-
-        #a * (b + c)
+        #a * (b + c) ===================================================
 
         #eerst het probleem van die a *(a*1) oplossen, kan weg als *1 weg is.
         for child in self.children:
@@ -171,8 +116,71 @@ class MUL(FLUID):
                     expansion.append(expanded)
                 self.__class__ = ADD
                 self.children = expansion
-                break
-     
+                return
+
+        #END OF a * (b + c) ===================================================            
+
+    #door deze twee (boven en onder) om te draaien kunnen we expansion en samenvoegen van machten 
+    #prioritiseren ofniet?
+
+
+        # a^b * a^c = a^(b+c)
+        base_exponent = {}
+        new_children_exponent = []
+
+        for child in self.children:
+            if not isinstance(child, POW):
+                base = child
+                exponent = CONST(1)
+                added = False
+                #het wordt hier ergens niet goed toegevoegd
+                for saved_base in base_exponent:
+                    if base.compare(saved_base):
+                        base_exponent[saved_base] = ADD(base_exponent[saved_base], exponent)
+                        added = True
+                        break
+                if not added:
+                    base_exponent[base] = exponent
+                # for base, exponent in base_exponent.items(): print("si", base,exponent)
+            else:
+                base = child.children[0]
+                exponent = child.children[1]
+                added = False
+                for saved_base in base_exponent:
+                    if base.compare(saved_base):
+                        base_exponent[saved_base] = ADD(base_exponent[saved_base], exponent)
+                        added = True
+                        break
+                if not added:
+                    base_exponent[base] = exponent
+
+        for base, exponent in base_exponent.items():
+            if exponent.__class__ == CONST:
+                if exponent.value == 1:
+                    new_children_exponent.append(base)
+                else: 
+                    new_children_exponent.append(POW(base, exponent))
+            else:
+                new_children_exponent.append(POW(base, exponent))
+
+        if len(new_children_exponent) == 1:
+            for base, exponent in base_exponent.items():
+                self.__class__ = POW
+                self.children = [base, exponent]
+                # self = POW(exponent, base)
+                return
+                #is dit zo goed?
+        else: 
+            self.__class__ = MUL
+            self.children = new_children_exponent
+        #wat als het maar 1 power wordt? if len(new_child..) == 1: leaf maken, anders deze optie?
+
+        #end of adding powers
+
+
+
+
+             
 
                 
         
