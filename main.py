@@ -1,7 +1,13 @@
 from tree import Tree
 from node import *
-from expression import *
 from GUI import GUI
+from expression import *
+import verification
+from tree import Tree
 
 if __name__ == "__main__":
-    print(is_operator("1"))
+    gui = GUI()
+
+
+    
+    

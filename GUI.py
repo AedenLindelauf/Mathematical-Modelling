@@ -1,7 +1,6 @@
 from tkinter import *
 from tree import Tree
 from node import *
-from shunting_yard import *
 from sys import exit
 
 from tkinter import ttk
