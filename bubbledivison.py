@@ -46,7 +46,7 @@ def bubble_division(node : NODE) -> Tree:
         if isinstance(node.right, DIV):
             new_node.right *= node.right.right
             new_node.left *= node.right.left
-        
+
         else:
             new_node.left *= node.right
     
