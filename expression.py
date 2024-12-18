@@ -15,6 +15,7 @@ class Expression:
 
         if is_valid_expression(self.infix_expression):
             self.tokenize()
+            print(self.tokenized_expression)
             self.create_tree()
 
     def create_tree(self):
@@ -84,9 +85,8 @@ class Expression:
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
         final_numerator = initial_numerator // greatest_common_divisor
         final_denominator = initial_denominator // greatest_common_divisor
-        division_node = DIV()
-        division_node.left = CONST(final_numerator)
-        division_node.right = CONST(final_denominator)
+        division_node = DIV(CONST(final_numerator),
+                            CONST(final_denominator))
         self.node_stack.append(division_node)
 
     def _add_operator_to_node_stack(self, operator : str) -> None:
@@ -96,9 +96,7 @@ class Expression:
         """
         right_hand_side = self.node_stack.pop()
         left_hand_side = self.node_stack.pop()
-        operator_node = self.OPERATOR_NODES[operator]()
-        operator_node.left = left_hand_side
-        operator_node.right = right_hand_side
+        operator_node = self.OPERATOR_NODES[operator](left_hand_side, right_hand_side)
         self.node_stack.append(operator_node)
 
     def _add_operator_to_stack(self):
@@ -140,14 +138,14 @@ class Expression:
         self.infix_expression = "x+1" -> self.tokenized_expression = ["x", "+", "1"]
         self.infix_expression ="xyz/-x" -> self.tokenized_expression = ['x', '*', 'y', '*', 'z', '/', '(', '-1', '*', 'x', ')']
         """
-        self.unary_minus_counter          : int       = 0
+        self.unary_minus_counter    : int       = 0
         self.tokenized_expression   : list[str] = []
         self.letter_stack           : list[str] = []
         self.number_stack           : list[str] = []
         shifted_expression          : list[str] = self.infix_expression[1:] + " "
         self.minus_is_unary         : bool      = True
 
-        for self.symbol, self.next_symbol in zip(self.infix_expression, shifted_expression):
+        for index, (self.symbol, self.next_symbol) in enumerate(zip(self.infix_expression, shifted_expression)):
             if self.symbol.isspace():
                 continue
 
@@ -167,7 +165,13 @@ class Expression:
             if self.next_symbol == "-":
                 self.determine_minus_nature()
             
-            elif not is_operator(self.symbol) and self.symbol != "(" and not is_letter(self.symbol) and (is_letter(self.next_symbol) or self.next_symbol == "("): # Long bool might fix later
+            elif is_operator(self.symbol) or self.symbol == "(":
+                pass
+
+            elif is_letter(self.symbol) and is_letter(self.next_symbol):
+                pass
+            
+            elif ((is_letter(self.next_symbol) or self.next_symbol == "(")): # Long bool might fix later
                 self.add_tokens("*")
             
 
@@ -178,7 +182,7 @@ class Expression:
         """
         self.number_stack.append(self.symbol)
 
-        if is_numerical_part(self.next_symbol):
+        if is_numerical_part(self.next_symbol) and self.next_symbol != "-": #hier gaat 1-1 fout
             return
         
         added_tokens : list[str] = ["".join(self.number_stack)]
@@ -275,5 +279,8 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
     return sign_a * quotient, remainder       
 
 if __name__ == "__main__":
-    e = Expression("xyz/-x")
+    #a(x+1)
+    #1-1
+    e = Expression("1-1")
     print(e.tokenized_expression)
+    print(e.tree)
