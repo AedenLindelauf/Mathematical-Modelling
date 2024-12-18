@@ -3,6 +3,7 @@ class NODE:
     def __init__(self): pass
 
 
+
 # Operands
 class BINARY(NODE):
     def __init__(self, left = None, right = None):
@@ -10,6 +11,9 @@ class BINARY(NODE):
 
     def __str__(self, op: str):
         return f"{self.left.__str__()} {op} {self.right.__str__()}"
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(left = {self.left}, right = {self.right})"
     
     def simplify(self):
         
@@ -191,6 +195,9 @@ class VAR(NODE):
     
     def __str__(self):
         return self.value
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(val = {self.value})"
 
 
 
@@ -202,3 +209,7 @@ class CONST(NODE):
 
     def __str__(self):
         return str(self.value)
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(val = {self.value})"
+    
