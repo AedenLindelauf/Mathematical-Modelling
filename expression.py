@@ -1,5 +1,12 @@
 from verification import *
-from node import *
+from operands.add import ADD
+from operands.sub import SUB
+from operands.mul import MUL
+from operands.div import DIV
+from operands.node import NODE
+from operands.pow import POW
+from operands.var import VAR
+from operands.const import CONST
 from tree import Tree
 
 class Expression:
@@ -84,9 +91,8 @@ class Expression:
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
         final_numerator = initial_numerator // greatest_common_divisor
         final_denominator = initial_denominator // greatest_common_divisor
-        division_node = DIV()
-        division_node.left = CONST(final_numerator)
-        division_node.right = CONST(final_denominator)
+        division_node = DIV(CONST(final_numerator), 
+                            CONST(final_denominator))
         self.node_stack.append(division_node)
 
     def _add_operator_to_node_stack(self, operator : str) -> None:
@@ -96,9 +102,7 @@ class Expression:
         """
         right_hand_side = self.node_stack.pop()
         left_hand_side = self.node_stack.pop()
-        operator_node = self.OPERATOR_NODES[operator]()
-        operator_node.left = left_hand_side
-        operator_node.right = right_hand_side
+        operator_node = self.OPERATOR_NODES[operator](left_hand_side, right_hand_side)
         self.node_stack.append(operator_node)
 
     def _add_operator_to_stack(self):
