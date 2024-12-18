@@ -171,14 +171,14 @@ class ADD(FLUID):
          # If there is still one more element in the array, then we need to copy it as well.
         if len(self.children) == 1: new_children.append(self.children[0])
 
+        #deleting the CONST(1) from the Mul classes.
         for i, child in enumerate(new_children):
             if isinstance(child,MUL):
                 replacing_children = [c for c in child.children if not (isinstance(c, CONST) and c.value == 1)]
             else: continue
+
             if len(replacing_children) == 1:
                 new_children[i] = replacing_children[0]
-            # elif len(replacing_children) == 0:
-            #     new_children[i] = CONST(1)
             else:
                 child.children = replacing_children
 
