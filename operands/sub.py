@@ -4,6 +4,8 @@ from operands.const import CONST
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
 
+    def latex(self): return self.__str__()
+
     def simplify(self):
         self.children[0].simplify()
         self.children[1].simplify()

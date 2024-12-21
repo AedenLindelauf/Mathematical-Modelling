@@ -7,6 +7,9 @@ class ADD(FLUID):
     def __str__(self):
         return " + ".join( [child.__str__() for child in self.children] )
     
+    def latex(self):
+        return self.__str()
+    
     def compare(tree1, tree2):
         if tree1.__class__ != tree2.__class__: 
             return False
