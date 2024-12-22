@@ -20,13 +20,13 @@ class POW(BINARY):
         return res
     
     def latex(self):
-        res = "{"
+        res = ""
 
         if isinstance(self.children[0], (CONST, VAR) ):
             res += f"{self.children[0].__str__()}"
         else: res += f"( {self.children[0].__str__()} )"
         
-        res += "} ^ {"
+        res += " ^ {"
 
         if isinstance(self.children[1], (CONST, VAR) ):
             res += f"{self.children[1].__str__()}"
