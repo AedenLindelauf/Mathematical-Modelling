@@ -1,6 +1,5 @@
 from tree import Tree
 from expression import *
-import verification
 
 if __name__ == "__main__":
     e = Expression("(x+1)/2")
