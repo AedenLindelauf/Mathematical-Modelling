@@ -54,6 +54,7 @@ if __name__ == "__main__":
     # expr = "(b + a ) * ( a + b )* (a+b) "
     # expr = "(b + a )^8 "
     # expr = "2^x *2^(x+1)"
+    expr = "(2*a)*a"
 
 
     #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.
