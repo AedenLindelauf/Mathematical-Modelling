@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # expr = "(abc^2d)^10"
     # expr = "(ab)*(ab)"
     # expr = "(ab^2)^3"
-    # expr = "a*(a*b)*b"
+    expr = "a*(a*b)*b"
     # expr = "16b^4 +a+2*2*4^a*4^a+3*6+a+b*b^3"
     # expr = "a*(a+d)+b"
     # expr = "a*b"
@@ -50,9 +50,10 @@ if __name__ == "__main__":
     # expr = "a-a"
     # expr = "3(a+b)+3a+300b"
     # expr = "3x-3x"
-    expr = "(a+b)^(6/2)"
-    expr = "(b + a ) * ( a + b )* (a+b) "
-    expr = "(b + a )^10 "
+    # expr = "(a+b)^(6/2)"
+    # expr = "(b + a ) * ( a + b )* (a+b) "
+    # expr = "(b + a )^8 "
+    # expr = "2^x *2^(x+1)"
 
 
     #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.

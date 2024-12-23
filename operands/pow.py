@@ -92,16 +92,16 @@ class POW(BINARY):
             self.children = a.children
 
         #Deze code togglen als je wel/niet wilt expanden!
-        # # (a+b)^2 = (a+b)(a+b)
-        # base = self.children[0]
-        # exponent = self.children[1]
-        # if isinstance(base, ADD):
-        #     if isinstance(exponent, CONST):
-        #         if (exponent.value > 1) and (isinstance(exponent.value, int)):
-        #             between_brackets = []
-        #             for i in range(exponent.value):
-        #                 between_brackets.append(base)
-        #             self.__class__ = MUL
-        #             self.children = between_brackets
+        # (a+b)^2 = (a+b)(a+b)
+        base = self.children[0]
+        exponent = self.children[1]
+        if isinstance(base, ADD):
+            if isinstance(exponent, CONST):
+                if (exponent.value > 1) and (isinstance(exponent.value, int)):
+                    between_brackets = []
+                    for i in range(exponent.value):
+                        between_brackets.append(base)
+                    self.__class__ = MUL
+                    self.children = between_brackets
                     
-        #     # ^-1 etc functionaliteit toevoegen?
+            # ^-1 etc functionaliteit toevoegen?
