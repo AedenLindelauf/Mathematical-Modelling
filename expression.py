@@ -24,6 +24,12 @@ class Expression:
             self.tokenize()
             self.create_tree()
 
+    def simplify(self):
+        self.tree.simplify()
+
+    def __str__(self):
+        return self.tree.__str__()
+
     def create_tree(self):
         """
         Creates the binary tree by looping over the tokens in the tokenized version of the infix expression. Based on the shunting yard algorithm.
@@ -66,7 +72,6 @@ class Expression:
                 break
             self._add_operator_to_node_stack(top_operator)
 
-        
     def _create_numerical_node(self) -> None:
         """
         The current token being considered is a numerical value. If the token is an integer (also when everything after the decimal point is zero) a constant node is added to the node stack, else if 
@@ -134,8 +139,7 @@ class Expression:
                 
 
         self.operator_stack.append(self.token)
-        
-        
+                
     def tokenize(self) -> None:
         """
         creates a tokenized version of the infix expression.
@@ -174,8 +178,6 @@ class Expression:
             elif not is_operator(self.symbol) and self.symbol != "(" and not is_letter(self.symbol) and (is_letter(self.next_symbol) or self.next_symbol == "("): # Long bool might fix later
                 self.add_tokens("*")
             
-
-
     def handle_numerical_part(self):
         """
         The current symbol considered in making the tokenized expression is part of a numerical value. If it is the last part of this numerical value it is added to the tokenized expression.
@@ -191,7 +193,6 @@ class Expression:
         self.add_tokens(added_tokens)
         self.number_stack = []
 
-    
     def add_tokens(self, tokens : str | list[str]) -> None:
         """
         Add the tokens put in to the tokenized expression. If there were n unary minuses before it n "-1", "*" are added before the new token. 
@@ -209,7 +210,6 @@ class Expression:
 
         self.tokenized_expression.extend(added_tokens)
     
-
     def handle_operator(self) -> None:
         """
         The current symbol considered in making the tokenized expression is an operator. If it is not a unary minus sign it is just added to the tokenized expression. Otherwise, it is counted as an unary
@@ -221,7 +221,6 @@ class Expression:
         elif self.symbol == "-":
             self.unary_minus_counter += 1
 
-    
     def determine_minus_nature(self) -> None:
         """
         The next symbol considered in making the tokenized expresssion is a minus sign. This determines if it is unary or binary. 
@@ -231,7 +230,6 @@ class Expression:
         
         else:
             self.minus_is_unary = False
-
     
     def handle_letter(self) -> None:
         """
@@ -277,7 +275,3 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
         remainder -= divider
         quotient += 1
     return sign_a * quotient, remainder       
-
-if __name__ == "__main__":
-    e = Expression("xyz/-x")
-    print(e.tokenized_expression)

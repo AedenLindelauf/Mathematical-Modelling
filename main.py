@@ -1,8 +1,13 @@
 from tree import Tree
 from expression import *
-import verification
 
 if __name__ == "__main__":
+    e = Expression("(x+1)/2")
+    test_tree = e.tree
+
+    e = MUL(CONST(1), CONST(2))
+    print(e.latex())
+
     
     # expr = "( a * b * c ) ^ d"
     expr = "a*1+a"

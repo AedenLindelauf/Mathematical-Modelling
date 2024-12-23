@@ -17,6 +17,15 @@ class MUL(FLUID):
         
         return " * ".join(string)
     
+    def latex(self):
+        string = []
+
+        for child in self.children:
+            if isinstance(child, (CONST, VAR) ):
+                string.append( f"{child.__str__()}" )
+            else: string.append( f"( {child.__str__()} )" )
+        
+        return r" \cdot ".join(string)
 
     def decompose(self):
             """

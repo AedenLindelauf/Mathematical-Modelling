@@ -19,6 +19,23 @@ class POW(BINARY):
         else: res += f"( {self.children[1].__str__()} )"
 
         return res
+    
+    def latex(self):
+        res = ""
+
+        if isinstance(self.children[0], (CONST, VAR) ):
+            res += f"{self.children[0].__str__()}"
+        else: res += f"( {self.children[0].__str__()} )"
+        
+        res += " ^ {"
+
+        if isinstance(self.children[1], (CONST, VAR) ):
+            res += f"{self.children[1].__str__()}"
+        else: res += f"( {self.children[1].__str__()} )"
+
+        res += "}"
+
+        return res
 
     def compare(tree1, tree2, exponent = True):
         if tree1.__class__ != tree2.__class__: # Is er een ^ node die bv geljk kan zijn aan een * node tree? anders klopt dit niet

@@ -3,6 +3,10 @@ from operands.binary import BINARY
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
+    def latex(self):
+        return r'\frac{left}{right}'.format(left="{"+self.children[0].latex()+"}", 
+                                            right="{"+self.children[1].latex()+"}")
+
     def compare(tree1, tree2):
         if tree1.__class__ != tree2.__class__: 
             return False
