@@ -35,7 +35,8 @@ def TEST(simplify: bool):
                 raise NotImplementedError("Differentiation not yet implemented...")
 
             if ( test_case == input_as_text ) and input_expr.tree.root.compare(answer.tree.root):
-                print(Fore.GREEN + f'Passed test {index + 1}')
+                print(Fore.GREEN + f'Passed test {index + 1}', end=' || ')
+                print(f"Test input: {test_case} - Registered input: {input_as_text}")
                 prev_failed = False
             else:
                 if not prev_failed:
