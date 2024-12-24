@@ -22,7 +22,6 @@ class Expression:
 
         if is_valid_expression(self.infix_expression):
             self.tokenize()
-            print(self.tokenized_expression)
             self.create_tree()
 
     def simplify(self):
