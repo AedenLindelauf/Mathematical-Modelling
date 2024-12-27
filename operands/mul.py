@@ -107,6 +107,9 @@ class MUL(FLUID):
         #a * (b + c) ===================================================
 
         #eerst het probleem van die a *(a*1) oplossen, kan weg als *1 weg is.
+        if isinstance(self, (CONST, VAR)):
+            return 
+
         for child in self.children:
             if isinstance(child, MUL):
                 self.children.remove(child)

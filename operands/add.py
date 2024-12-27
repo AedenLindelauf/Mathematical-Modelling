@@ -185,7 +185,7 @@ class ADD(FLUID):
                 new_children[i] = replacing_children[0]
             else:
                 child.children = replacing_children
-
+        
 
 
         if len(new_children) > 1:
@@ -200,44 +200,14 @@ class ADD(FLUID):
         # ===========================================================================================
         # =========================================== END ===========================================
         # ===========================================================================================
-                        
-        if not isinstance(self, MUL):
-            for child in self.children: child.simplify()
-        else: self.simplify()
-
+        
+        #Dit stond er eerst wel in? wat is dit?
+        # if not isinstance(self, MUL):
+        #     for child in self.children: child.simplify()
+        # else: self.simplify()
+        
         for child in self.children:
             if isinstance(child, ADD):
                 self.children.remove(child)
                 for grandchild in child.children:
                     self.children.append(grandchild)
-
-
-        # #dingen optellen van Wes  
-        # niet helemaal meer compleet 
-        # # 
-        # # #constant*(iets) bij elkaar optellen
-        # adding_together = {}  
-        # for child in self.children:       
-        #     if isinstance(child, MUL):
-        #         contains_const = False
-        #         for i, grandchild in enumerate(child.children):
-        #         #if isinstance != var(x), dan kan je buiten haakjes halen?
-        #             if isinstance(grandchild, CONST):
-        #                 contains_const = True
-        #                 other_factors = child.children[:i] + child.children[i+1:]
-        #                 if len(other_factors) > 1:
-        #                     other_factors = MUL(*(other_factors))
-        #                 else:
-        #                     other_factors = other_factors[0]
-        #                 #print(other_factors, grandchild)
-        #                 added = False
-        #                 for expression in adding_together:
-        #                     if other_factors.compare(expression):
-        #                         adding_together[expression] = ADD(adding_together[expression], grandchild)
-        #                         added = True
-        #                 if not added:
-        #                     adding_together[other_factors] = grandchild
-        #                 break
-
-        #         if not contains_const: 
-        #             self.children[i].children.append(CONST(1))     
