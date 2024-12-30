@@ -29,7 +29,7 @@ def TEST(simplify: bool):
             input_expr  = Expression(test_case)
             input_as_text = input_expr.__str__()
             answer      = Expression(answer)
-            answer.simplify() #Beetje sketchy maar anders interpreteerd die de goede antwoorden niet goed?
+            answer.tree.convert_to_common_operator_structure()
 
             if simplify:
                 input_expr.simplify()
