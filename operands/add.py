@@ -188,7 +188,7 @@ class ADD(FLUID):
                 new_children[i] = replacing_children[0]
             else:
                 child.children = replacing_children
-
+        
 
 
         if len(new_children) > 1:
@@ -203,11 +203,12 @@ class ADD(FLUID):
         # ===========================================================================================
         # =========================================== END ===========================================
         # ===========================================================================================
-                        
-        if not isinstance(self, MUL):
-            for child in self.children: child.simplify()
-        else: self.simplify()
-
+        
+        #Dit stond er eerst wel in? wat is dit?
+        # if not isinstance(self, MUL):
+        #     for child in self.children: child.simplify()
+        # else: self.simplify()
+        
         for child in self.children:
             if isinstance(child, ADD):
                 self.children.remove(child)
