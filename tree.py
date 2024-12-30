@@ -15,10 +15,13 @@ class Tree:
     def __str__(self):
         return self.root.__str__()
     
-    def simplify(self): 
+    def simplify(self):
         self.preprocess(self.root)
+        self.convert_to_common_operator_structure()
         for i in range(10):
             self.root.simplify()
+
+        self.postprocess(self.root)
 
 
     def convert_to_common_operator_structure(self):
@@ -39,6 +42,42 @@ class Tree:
             node.__class__ = ADD
             node.children = [a, MUL(CONST(-1), b)] 
 
+        # Multiply everything by one. The simplification should solve this.
+
 
         self.preprocess(node.children[0])
         self.preprocess(node.children[1])
+
+    def postprocess(self, node):
+        "1 * f => f and -1 * c = -c"
+        if isinstance(node, MUL):
+            new_children = []
+            for item in node.children:
+                if not(isinstance(item, CONST) and item.value == 1):
+                    new_children.append(item)
+            if len(new_children) == 1:
+                node.__class__ = new_children[0].__class__
+                node.value = new_children[0].value
+            else:
+                node.children = new_children
+
+            # Now check for -1 * const * f(x).
+            new_children = []
+            c = 1
+            for item in node.children:
+                if isinstance(item, CONST):
+                    c *= item.value
+                else:
+                    new_children.append(item)
+
+            if c != 1: new_children.append(CONST(c))
+
+            if len(new_children) == 1:
+                node.__class__ = new_children[0].__class__
+                node.value = new_children[0].value
+            else:
+                node.children = new_children
+
+        if not isinstance(node, (VAR, CONST)):
+            for child in node.children:
+                self.postprocess(child)

@@ -18,6 +18,7 @@ def TEST(simplify: bool):
     else:
         print("====== TESTING DIFFERENTIATION FUNCTIONALITY =====\n")
 
+    cnt = 0
     prev_failed = False
     for index in range(len(test_cases_df)):
         
@@ -35,13 +36,17 @@ def TEST(simplify: bool):
                 raise NotImplementedError("Differentiation not yet implemented...")
 
             if input_expr.tree.root.compare(answer.tree.root):
-                print(Fore.GREEN + f'Passed test {index + 1}', end=' || ')
-                print(f"Test case: {test_case} - Input as tree: {input_as_text}")
+                print(Fore.GREEN + 'Passed test {:>3}'.format(index+1), end=' || ')
+                print(Fore.MAGENTA + "Test case: ", end='')
+                print(f"{test_case}", end='')
+                print(Fore.YELLOW + ' - Input as tree: ', end='')
+                print(f"{input_as_text}")
                 prev_failed = False
+                cnt += 1
             else:
                 if not prev_failed:
                     print("--------------------------------------------------")
-                print(Fore.RED + Style.BRIGHT + f'Failed test {index+1}')
+                print(Fore.RED + Style.BRIGHT + 'Failed test {:>3}'.format(index+1) )
                 print(f"Test case:\t\t{test_case}")
                 print(f"Input Expression:\t{input_as_text}")
                 print(f"Expected output:\t{answer}")
@@ -52,11 +57,17 @@ def TEST(simplify: bool):
             if not prev_failed:
                 print("--------------------------------------------------")
             print(Fore.RED + Style.BRIGHT + f'Failed test {index+1}')
-            print("ERROR OCCURED")
+            print(f"ERROR OCCURED - {test_case}")
             print("--------------------------------------------------")
             prev_failed = True
 
-    print("\n================= END OF TESTING =================\n\n")
+    color = Fore.WHITE  
+    if cnt == len(test_cases_df):
+        color = Fore.GREEN
+    else: color = Fore.RED
+    
+    print(Style.BRIGHT + color + f"\nPassed {cnt}/{len(test_cases_df)} cases")
+    print("================= END OF TESTING =================\n\n")
 
 if __name__ == "__main__":
     init(autoreset=True)
