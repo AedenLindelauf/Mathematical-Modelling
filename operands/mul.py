@@ -44,10 +44,7 @@ class MUL(FLUID):
                     # Remove last element.
                     f.children.pop()
                     break
-            if len(f.children) == 1:
-                item = f.children[0]
-                f.__class__ = item.__class__
-                f.value = item.value
+
             return a, f
 
 
