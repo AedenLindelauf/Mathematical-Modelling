@@ -1,6 +1,7 @@
 from operands.fluid import FLUID
 from operands.var import VAR
 from operands.pow import POW
+from operands.div import DIV
 from copy import deepcopy
 
 class ADD(FLUID):
@@ -58,9 +59,7 @@ class ADD(FLUID):
         from operands.const import CONST
         from operands.mul import MUL
  
-        # If the child has children, simplify the children
-        for child in self.children:
-            child.simplify()
+        
 
         # ===========================================================================================
         # ====================================== Add constants ======================================
@@ -204,13 +203,15 @@ class ADD(FLUID):
         # =========================================== END ===========================================
         # ===========================================================================================
         
-        #Dit stond er eerst wel in? wat is dit?
-        # if not isinstance(self, MUL):
-        #     for child in self.children: child.simplify()
-        # else: self.simplify()
+
         
         for child in self.children:
             if isinstance(child, ADD):
                 self.children.remove(child)
                 for grandchild in child.children:
                     self.children.append(grandchild)
+
+
+        # If the child has children, simplify the children
+        for child in self.children:
+            child.simplify()

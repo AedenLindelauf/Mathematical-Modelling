@@ -22,6 +22,9 @@ class Tree:
         self.convert_to_common_operator_structure()
         
         old = deepcopy(self.root)
+        # for i in range(10):
+        #     self.root.simplify()
+
         self.root.simplify()
         iterations = 1
 
