@@ -66,6 +66,12 @@ if __name__ == "__main__":
     expr = "3x-3x"
     expr = "3(a+b)-3a-3b"
     expr = "a*2a"
+    expr = "a * (x/y)"
+    expr = "2 * (x/y)"
+    expr = "x/y + (2x)/y"
+    expr = "a * s * (x/y) * b * (1/b)"
+    expr = "a * a"
+    expr = "3x-3x"
 
     #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.
     

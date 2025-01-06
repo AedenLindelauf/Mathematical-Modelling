@@ -59,3 +59,7 @@ class DIV(BINARY):
 
         # Check whether division by 0.
         if isinstance(self.children[1], CONST) and (self.children[1].value == 0) : raise ZeroDivisionError()
+
+
+
+        for child in self.children: child.simplify()

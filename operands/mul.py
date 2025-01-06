@@ -47,7 +47,6 @@ class MUL(FLUID):
 
             return a, f
 
-
     def compare(tree1, tree2):
         if tree1.__class__ != tree2.__class__: 
             return False
@@ -72,14 +71,26 @@ class MUL(FLUID):
         else: 
             return True
 
-
-
     def simplify(self):
+        from operands.div import DIV
 
         # If the child has children, simplify the children
-        for child in self.children:
-            child.simplify()
+        for child in self.children: child.simplify()
         
+        # Check if any of the children is also a MUL class, otherwise take this into account in the current MUL object.
+        # This has to be done since we to convert (2x)/y to 2(x/y).
+        index_to_be_removed =[] # This will be slow but can be made faster later. 
+        length = len(self.children)
+        for i in range(length):
+            child = self.children[i]
+            if isinstance(child, MUL):
+                index_to_be_removed.append(i)
+                for elt in child.children:
+                    self.children.append(elt)
+
+        index_to_be_removed = index_to_be_removed[::-1] # Decreasing order to not screw up indices in removal.
+        for i in index_to_be_removed: self.children.pop(i)
+
         # Multiply constants. Checking for zero is obsolete since it is taken in the loop.
         const_prod = CONST(1)     # Keeps track of the sum of the values of CONST children.
         new_children = [const_prod] # Keeps track of the children.
@@ -182,6 +193,7 @@ class MUL(FLUID):
                 self.__class__ = POW
                 self.children = [base, exponent]
                 # self = POW(exponent, base)
+                for child in self.children: child.simplify()
                 return
                 #is dit zo goed?
         else: 
@@ -192,9 +204,49 @@ class MUL(FLUID):
         #end of adding powers
 
 
+        # ===========================================================================================
+        # ========================= Check if one of children is a fraction ==========================
+        # ===========================================================================================
 
+        # Move everything inside one fraction.
+        # Leave constants out of div.
+        
+        div_present = False
+        index_of_div = None
 
-             
+        for i in range(len(self.children)):
+            if isinstance(self.children[i], DIV):
+                div_present = True
+                index_of_div = i
+                break
 
-                
+        if div_present:
+            new_children = [self.children[index_of_div]]
+            self.children.pop(index_of_div)
+            # There should be one constant.
+
+            for i in range(len(self.children)):
+                child = self.children[i]
+                if isinstance(child, CONST):
+                    new_children.append(child)
+                elif isinstance(child, DIV):
+                    new_children[0].children[0] = MUL( child.children[0], new_children[0].children[0] )
+                    new_children[0].children[1] = MUL( child.children[1], new_children[0].children[1] )
+                else:
+                    new_children[0].children[0] = MUL(child, new_children[0].children[0])
+            
+            if len(new_children) == 1:
+                child = new_children[0]
+                self.__class__ = new_children[0].__class__
+                if isinstance(child, (VAR, CONST)):
+                    self.value = child.value
+                    return
+                else:
+                    self.children = new_children[0].children
+            else:
+                self.children = new_children
+        
+        
+        for child in self.children:
+            child.simplify()
         

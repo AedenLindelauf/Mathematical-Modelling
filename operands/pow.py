@@ -122,3 +122,5 @@ class POW(BINARY):
                     self.children = between_brackets
                     
             # ^-1 etc functionaliteit toevoegen?
+
+        for child in self.children: child.simplify()

@@ -15,3 +15,5 @@ class SUB(BINARY):
             res = self.children[0].value - self.children[1].value
             self.__class__ = CONST
             self.value = res
+
+        for child in self.children: child.simplify()

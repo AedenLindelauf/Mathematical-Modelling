@@ -4,8 +4,10 @@ from operands.fluid import FLUID
 from operands.const import CONST
 from operands.var import VAR
 from operands.mul import MUL
+from operands.div import DIV
 from operands.add import ADD 
 from operands.sub import SUB
+from copy import deepcopy
 
 class Tree:
     def __init__(self, root: NODE):
@@ -18,11 +20,18 @@ class Tree:
     def simplify(self):
         self.preprocess(self.root)
         self.convert_to_common_operator_structure()
-        for i in range(10):
+        
+        old = deepcopy(self.root)
+        self.root.simplify()
+        iterations = 1
+
+        while(not old.compare(self.root)):
+            old = deepcopy(self.root)
             self.root.simplify()
+            iterations += 1
 
         self.postprocess(self.root)
-
+        # print(f"Num of iterations: {iterations}")
 
     def convert_to_common_operator_structure(self):
         # Start the conversion process
@@ -58,6 +67,7 @@ class Tree:
             if len(new_children) == 1:
                 node.__class__ = new_children[0].__class__
                 node.value = new_children[0].value
+                return
             else:
                 node.children = new_children
 
