@@ -22,16 +22,16 @@ class Tree:
         self.convert_to_common_operator_structure()
         
         old = deepcopy(self.root)
-        # for i in range(10):
-        #     self.root.simplify()
-
-        self.root.simplify()
-        iterations = 1
-
-        while(not old.compare(self.root)):
-            old = deepcopy(self.root)
+        for i in range(11):
             self.root.simplify()
-            iterations += 1
+
+        # self.root.simplify()
+        # iterations = 1
+
+        # while(not old.compare(self.root)):
+        #     old = deepcopy(self.root)
+        #     self.root.simplify()
+        #     iterations += 1
 
         self.postprocess(self.root)
         # print(f"Num of iterations: {iterations}")
