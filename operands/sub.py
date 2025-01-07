@@ -5,8 +5,8 @@ class SUB(BINARY):
     def __str__(self): return super().__str__("-")
 
     def simplify(self):
-        if (self.children[0] is not None) and isinstance(self.children[0], BINARY): self.children[0].simplify()
-        if (self.children[1] is not None) and isinstance(self.children[1], BINARY): self.children[1].simplify()
+        self.children[0].simplify()
+        self.children[1].simplify()
 
         # Add constants.
         if isinstance(self.children[0], CONST) and isinstance(self.children[1], CONST):

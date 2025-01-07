@@ -4,11 +4,9 @@ from operands.var import VAR
 from operands.node import NODE
 from operands.add import ADD
 from operands.pow import POW
+from copy import deepcopy
 
 class MUL(FLUID):
-    def __init__(self, *args):
-        super().__init__(*args)
-
     def __str__(self):
         string = []
 
@@ -19,12 +17,35 @@ class MUL(FLUID):
         
         return " * ".join(string)
     
+
+    def decompose(self):
+            """
+            Returns the const (1 if not present) and the remaining term.
+            """
+            f = deepcopy(self) # f is constructed as f = a * g
+            a = CONST(1)
+
+            for index in range(len(f.children)):
+                item = f.children[index]
+                if isinstance(item, CONST):
+                    a = item
+                    # Swap element at index "index" and last index. 
+                    f.children[index] = f.children[-1]
+                    f.children[-1] = item
+                    # Remove last element.
+                    f.children.pop()
+                    break
+            return a, f
+
+
     def compare(tree1, tree2):
         if tree1.__class__ != tree2.__class__: 
             return False
         tree1children = tree1.children.copy()
         tree2children = tree2.children.copy()
         for child1 in tree1children:
+            if child1.compare(CONST(1)):
+                continue
             something_removed = False
             for child2 in tree2children:
                 if child1.compare(child2):
@@ -33,8 +54,15 @@ class MUL(FLUID):
                     break
             if not something_removed:
                 return False
-        
-        return tree2children == []
+        if tree2children:
+            for leftover in tree2children:
+                if not leftover.compare(CONST(1)):
+                    return False
+            return True
+        else: 
+            return True
+
+
 
     def simplify(self):
 
@@ -53,16 +81,23 @@ class MUL(FLUID):
 
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
-        if const_prod.value == 0: 
+        if len(new_children) == 1: 
              self.__class__ = CONST
-             self.value = 0
+             self.value = const_prod.value
+             return # No other simplifcations applicable to CONST.
+        elif new_children[0].value == 1:
+            pass
         else:
              self.children = new_children
         
+        if self.decompose()[0].value == 0:
+            self.__class__ = CONST
+            self.value = 0
 
         # a^b * a^c = a^(b+c)
         base_exponent = {}
         new_children_exponent = []
+
         for child in self.children:
 
             if not isinstance(child, POW):
@@ -91,7 +126,6 @@ class MUL(FLUID):
                 if not added:
                     base_exponent[base] = exponent
 
-
         for base, exponent in base_exponent.items():
             if exponent.__class__ == CONST:
                 if exponent.value == 1:
@@ -100,10 +134,13 @@ class MUL(FLUID):
                     new_children_exponent.append(POW(exponent, base))
             else:
                 new_children_exponent.append(POW(exponent, base))
-        
+
         if len(new_children_exponent) == 1:
             for base, exponent in base_exponent.items():
-                self = POW(exponent, base)
+                self.__class__ = POW
+                self.children = [base, exponent]
+                # self = POW(exponent, base)
+                return
                 #is dit zo goed?
         else: 
             self.__class__ = MUL
@@ -114,10 +151,19 @@ class MUL(FLUID):
 
 
         #a * (b + c)
+
+        #eerst het probleem van die a *(a*1) oplossen, kan weg als *1 weg is.
+        for child in self.children:
+            if isinstance(child, MUL):
+                self.children.remove(child)
+                for grandchild in child.children:
+                    self.children.append(grandchild)
+
+
         expansion = []
 
         for i, child in enumerate(self.children):
-
+            
             if isinstance(child, ADD):
                 for grandchild in child.children:
                     other_factors = self.children.copy()[:i] + self.children.copy()[i+1:] #everything except the expansion term

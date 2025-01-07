@@ -17,10 +17,8 @@ class Tree:
     
     def simplify(self): 
         self.preprocess(self.root)
-        self.root.simplify()
-        #self.root.simplify()
-        #self.root.simplify()
-        # self.root.simplify()
+        for i in range(5):
+            self.root.simplify()
 
 
     def convert_to_common_operator_structure(self):
@@ -39,8 +37,7 @@ class Tree:
             a = node.children[0]
             b = node.children[1]
             node.__class__ = ADD
-            node.children[0] = a
-            node.children[1] = MUL(CONST(-1), b)
+            node.children = [a, MUL(CONST(-1), b)] 
 
 
         self.preprocess(node.children[0])

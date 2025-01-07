@@ -1,6 +1,7 @@
 from operands.fluid import FLUID
 from operands.var import VAR
 from operands.pow import POW
+from copy import deepcopy
 
 class ADD(FLUID):
     def __str__(self):
@@ -58,6 +59,9 @@ class ADD(FLUID):
         for child in self.children:
             child.simplify()
 
+        # ===========================================================================================
+        # ====================================== Add constants ======================================
+        # ===========================================================================================
         # Add constants. Checking for zero is obsolete since it is taken in the loop.
         new_children = [] # Keeps track of the children that are not constants.
         const_sum = 0     # Keeps track of the sum of the values of CONST children.
@@ -71,82 +75,166 @@ class ADD(FLUID):
         
         # If there is only one child, then it has to be a constant since it is the only node we always add.
         # Otherwise there are more constants.
+        # print(new_children)
+        # if new_children: 
+        #      self.children = new_children
+        #      if const_sum != 0: self.children.append(CONST(const_sum))
+        # else:
+        #      self.__class__ = CONST
+        #      self.value = const_sum
+        #      return
+        
+        #changed it into this:
         if new_children: 
-             self.children = new_children
-             if const_sum != 0: self.children.append(CONST(const_sum))
+             if const_sum != 0: new_children.append(CONST(const_sum))
+             if len(new_children) == 1:
+                term = new_children[0]
+                self.__class__ = term.__class__
+                self.children = term.children
+             else:
+                self.children = new_children
         else:
              self.__class__ = CONST
              self.value = const_sum
+             return
 
+
+
+        # ===========================================================================================
+        # =========================================== END ===========================================
+        # ===========================================================================================
+       
+
+        # ===========================================================================================
+        # ========================== a * f + b * f = (a+b) * f, a,b \in \Q ==========================
+        # ===========================================================================================
+
+        # Keep track of the new children.
+        new_children = []
+
+        # Preprocessing: Make everything a MUL class.
+        for i in range(len(self.children)):
+            
+            # Constants are already added so we can remove them.
+            if isinstance(self.children[i], CONST): 
+                new_children.append(self.children[i])
+                self.children.pop(i) # can be made faster. Only executed once.
+            
+            elif not isinstance(self.children[i], MUL):
+                temp = self.children[i]
+                self.children[i] = MUL(None, None) # Make dummy MUL object.
+                self.children[i].children = [CONST(1), temp]
+
+            # It has to be a MUL class now.
+            else: # Check if there is a constant in MUL object otherwise set it to 1.
+                contains_const = False
+                for index in range(len(self.children[i].children)):
+                    if isinstance(self.children[i].children[index], CONST): 
+                        contains_const = True
        
         
-        #constant*(iets) bij elkaar optellen
-        adding_together = {}
-        
-        for child in self.children:       
-            if isinstance(child, MUL):
-                for i, grandchild in enumerate(child.children):
-                #if isinstance != var(x), dan kan je buiten haakjes halen?
-                    if isinstance(grandchild, CONST):
-                        other_factors = child.children[:i] + child.children[i+1:]
-                        if len(other_factors) != 1:
-                            other_factors = MUL(*(other_factors))
-                        else:
-                            other_factors = other_factors[0]
-                        #print(other_factors, grandchild)
-                        added = False
-                        for expression in adding_together:
-                            if other_factors.compare(expression):
-                                adding_together[expression] = ADD(adding_together[expression], grandchild)
-                                added = True
-                        if not added:
-                            adding_together[other_factors] = grandchild
-                        break
-            else:    #if isinstance(child, VAR) or isinstance(child, POW): #is dit in nog meer situaties?
-                added = False
-                for expression in adding_together:
-                    if child.compare(expression):
-                        adding_together[expression] = ADD(adding_together[expression], CONST(1))
-                        added = True
-                if not added:
-                    adding_together[child] = CONST(1)
-                #hier moet dan een 1 komen voor var, check if in dic, anders-> en dat toevoegen aan dic
         
         
 
+        # Everything is a MUL class.
+        i: int = len(self.children) - 1
+        while i > 0:
+            # We can assume that there is only one constant because of the other simplifcations.
+            # Find the index of the constant to ignore it. If there is not constant, make it 1.
+            f = self.children[i]
+            # f can be written as f = a * p where a \in \Q a constant. 
+            a, p = f.decompose()
+
+            for j in range(i-1, -1, -1):
+                g = self.children[j]
+                # g can be written as g = b * q where b \in \Q a constant.
+                b, q = g.decompose()
+
+                if p.compare(q):
+                    # We can add them.
+                    # Swap the j-th entry with the i-1th entry and remove 
+                    # the i-th entry since we add the i-1th and ith entry.
+                    self.children[j]= self.children[i-1]
+                    if isinstance(p, MUL):
+                        self.children[i-1] = p
+                        self.children[i-1].children.append( CONST(a.value + b.value) )
+                    else:
+                        self.children[i-1] = MUL(CONST(a.value + b.value), p)
+                    i -= 1
+                    self.children.pop()
+
+            # After the for loop, we have added the items that are the same type.
+            # So we push the last element to the new_children type. 
+            new_children.append(self.children[-1])
+            self.children.pop()
+            i -= 1
+
+         # If there is still one more element in the array, then we need to copy it as well.
+        if len(self.children) == 1: new_children.append(self.children[0])
+
+        #deleting the CONST(1) from the Mul classes.
+        for i, child in enumerate(new_children):
+            if isinstance(child,MUL):
+                replacing_children = [c for c in child.children if not (isinstance(c, CONST) and c.value == 1)]
+            else: continue
+
+            if len(replacing_children) == 1:
+                new_children[i] = replacing_children[0]
+            else:
+                child.children = replacing_children
 
 
-    # if isinstance(child, ADD):
-    #             for grandchild in child.children:
-    #                 other_factors = self.children[:i] + self.children[i+1:] #everything except the expansion term
-    #                 expanded = MUL(*(other_factors + [grandchild]))
-    #                 expansion.append(expanded)
-    #             self.__class__ = ADD
-    #             self.children = expansion
-    #             break
-                 #if there is a constant, check of in dic, anders: voeg rest toe aan dic -> rest:const
-#alle (ietsjes) in een list zetten, en met dubbele forloop kijken welke allemaal hetzelfde zijn?
 
-            
-        new_children = []
-        if len(adding_together) != 1:
-            for expression, constant in adding_together.items():
-                if isinstance(constant, CONST):
-                    if constant.value == 1:
-                        new_children.append(expression)
-                else:
-                    new_children.append(MUL(constant, expression))
-            self.__class__ = ADD
+        if len(new_children) > 1:
             self.children = new_children
         else:
-            for expression, constant in adding_together.items():
-                #constant.simplify() of constant.add()
-                new_children.append(constant)
-                new_children.append(expression)
-            self.__class__ = MUL
-            self.children = new_children
+            self.__class__ = new_children[0].__class__
+            if isinstance(new_children[0], MUL):
+                self.children = new_children[0].children
+            else: self.children = new_children
 
         
-
+        # ===========================================================================================
+        # =========================================== END ===========================================
+        # ===========================================================================================
                         
-               
+        if not isinstance(self, MUL):
+            for child in self.children: child.simplify()
+        else: self.simplify()
+
+        for child in self.children:
+            if isinstance(child, ADD):
+                self.children.remove(child)
+                for grandchild in child.children:
+                    self.children.append(grandchild)
+
+
+        # #dingen optellen van Wes  
+        # niet helemaal meer compleet 
+        # # 
+        # # #constant*(iets) bij elkaar optellen
+        # adding_together = {}  
+        # for child in self.children:       
+        #     if isinstance(child, MUL):
+        #         contains_const = False
+        #         for i, grandchild in enumerate(child.children):
+        #         #if isinstance != var(x), dan kan je buiten haakjes halen?
+        #             if isinstance(grandchild, CONST):
+        #                 contains_const = True
+        #                 other_factors = child.children[:i] + child.children[i+1:]
+        #                 if len(other_factors) > 1:
+        #                     other_factors = MUL(*(other_factors))
+        #                 else:
+        #                     other_factors = other_factors[0]
+        #                 #print(other_factors, grandchild)
+        #                 added = False
+        #                 for expression in adding_together:
+        #                     if other_factors.compare(expression):
+        #                         adding_together[expression] = ADD(adding_together[expression], grandchild)
+        #                         added = True
+        #                 if not added:
+        #                     adding_together[other_factors] = grandchild
+        #                 break
+
+        #         if not contains_const: 
+        #             self.children[i].children.append(CONST(1))     

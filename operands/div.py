@@ -3,6 +3,18 @@ from operands.binary import BINARY
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
+    def compare(tree1, tree2):
+        if tree1.__class__ != tree2.__class__: 
+            return False
+        
+        if ( tree1.children[0].compare(tree2.children[0]) ) and ( tree1.children[1].compare(tree2.children[1]) ):
+            return True
+        return False
+        
+        #zou heel kort kunnen met: return ( tree1.children[0].compare(tree1.children[0]) ) and ( tree1.children[1].compare(tree1.children[1]) )
+
+    #simplification of fractions
+
     def simplify(self):
         from operands.mul import MUL
         from operands.const import CONST

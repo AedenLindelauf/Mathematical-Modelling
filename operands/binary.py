@@ -4,7 +4,7 @@ from operands.var import VAR
 
 class BINARY(NODE):
     def __init__(self, left = None, right = None):
-        super().__init__(right, left) # Need to switch them around because for some reason python switches them around in the iterator
+        super().__init__(left, right) # Need to switch them around because for some reason python switches them around in the iterator
 
     def __str__(self, op: str):
         return f"{self.children[0].__str__()} {op} {self.children[1].__str__()}"
