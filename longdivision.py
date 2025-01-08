@@ -10,9 +10,7 @@ from copy import deepcopy
 
 def check_expression_for_polynomial_notation(node: NODE) -> bool:
     if isinstance(node, DIV):
-        return False # What needs to happen here with regard to the fraction notation of rational numbers???
-        if not isinstance(node.children[0], CONST) or not isinstance(node.children[1], CONST):
-            return False
+        return False
     
     if isinstance(node, ADD):
         values = []
@@ -68,13 +66,16 @@ def count_degree_of_polynomial_space(node: NODE) -> list[str]:
 
 def sort_monomial(node: NODE):
     #If the simplify functions properly, and x * x always gets simplified to x^2, this should work perfectly. Otherwise its fucked
+    if isinstance(node, MUL) and len(node.children) == 2 and isinstance(node.children[0], CONST) and isinstance(node.children[1], CONST):
+        return node
+
     vars = count_degree_of_polynomial_space(node)
     vars.sort()
 
     if isinstance(node, CONST) or isinstance(node, VAR) or isinstance(node, POW):
         return node
     d = dict.fromkeys(vars, -1)
-    const = -1
+    const = []
     for i, child in enumerate(node.children):
         if isinstance(child, VAR):
             d[child.value] = i
@@ -83,13 +84,13 @@ def sort_monomial(node: NODE):
             d[child.children[0].value] = i
             continue
         if isinstance(child, CONST):
-            if const > -1: raise Exception("Cannot have two constants in the same monomial")
-            const = i
+            const.append(i)
     
     new_children = []
 
-    if const > -1:
-        new_children.append(node.children[const])
+    if len(const):
+        for constant in const:
+            new_children.append(node.children[constant])
 
     for var in vars: # Use vars instead of d.keys() because vars is ordered and d.keys is not
         new_children.append(node.children[d[var]])
@@ -101,10 +102,15 @@ def sort_monomial(node: NODE):
 def compare_two_monomials(mon1: NODE, mon2: NODE) -> tuple[NODE, NODE]:
     # Check if the monomials start with scalar multipliers at the front
 
-    if isinstance(mon1, CONST):
-        new_mon1 = [mon1]
-    if isinstance(mon2, CONST):
-        new_mon2 = [mon2]
+    if isinstance(mon1, MUL) and len(mon1.children) == 2 and isinstance(mon1.children[0], CONST) and isinstance(mon1.children[1], CONST):
+        return mon2,mon1
+    if isinstance(mon2, MUL) and len(mon2.children) == 2 and isinstance(mon2.children[0], CONST) and isinstance(mon2.children[1], CONST):
+        return mon1,mon2
+
+    if isinstance(mon1, CONST) and not isinstance(mon2, CONST):
+        return mon2, mon1
+    if isinstance(mon2, CONST) and not isinstance(mon1, CONST):
+        return mon1, mon2
     
     if isinstance(mon1, VAR):
         new_mon1 = [mon1]
@@ -234,7 +240,6 @@ def monomial_divides_monomial(dividend, divisor) -> bool:
     if isinstance(divisor, MUL):
         values = []
         for child in divisor.children:
-            print("Checking the loop of the mul monomial", dividend, child)
             values.append(monomial_divides_monomial(dividend, child))
         return all(values)
     
@@ -263,7 +268,6 @@ def find_long_monomial_diff(mon_big, mon_small):
                         l.append(POW(VAR(var), CONST(degree_big - 1)))
                 if isinstance(baby, POW) and var == baby.children[0].value:
                     mutation_occured = True
-                    print("Test")
                     if degree_big - baby.children[1].value == 1:
                         l.append(VAR(var))
                     if degree_big - baby.children[1].value > 1:
@@ -336,8 +340,6 @@ def divide_monomials(dividend: NODE, divisor: NODE) -> NODE:
                     return dividend
                 dividend.children[i].children[1].value = diff
                 return dividend
-
-    print("Doing MUL") # In this case it can be assumed that dividend is also a MUL, because divisor divides dividend
     return find_long_monomial_diff(dividend, divisor)
 
 def long_division(node: DIV):
@@ -345,49 +347,47 @@ def long_division(node: DIV):
     if not isinstance(node, DIV):
         print("Long division can only be performed on a DIV class")
         return node #AssertionError("Division algorithm can only occur on division class")
+    if not isinstance(node.children[1], ADD):
+        #Quickly write an alternative case perhaps
+        return node
     if not check_expression_for_polynomial_notation(node.children[0]):
         print("Dividend must be a polynomial")
         return node #AssertionError("Numerator must be in polynomial form")
     if not check_expression_for_polynomial_notation(node.children[1]):
         print("Divisor must be a polynomial")
         return node #AssertionError("Denominator must be in polynomial form")
-    if count_polynomial_degree(node.children[0]) <= count_polynomial_degree(node.children[1]):
-        print("Dividend degree must exceed divisor degree")
+    if count_polynomial_degree(node.children[0]) < count_polynomial_degree(node.children[1]):
+        print("Dividend degree must exceed divisor degree", count_polynomial_degree(node.children[0]), count_polynomial_degree(node.children[1]))
         return node # Nothing else to do
     
     dividend = deepcopy(change_to_lex_order(node.children[0]))
     divisor = deepcopy(change_to_lex_order(node.children[1]))
 
     if not isinstance(dividend, ADD) and not isinstance(divisor, ADD):
-        print("dividend or divisor should be a polynomial")
         return node
-
-    print("Dividend:", dividend)
-    print("Divisor:", divisor)
-
-    print(monomial_divides_monomial(dividend, divisor), "Test")
     
     q = []
-    r = None
 
-    foremost_dividend_monomial = deepcopy(dividend.children[0]) if isinstance(dividend, ADD) else deepcopy(dividend)
-    foremost_divisor_monomial = deepcopy(divisor.children[0]) if isinstance(divisor, ADD) else deepcopy(divisor)
+    while True:
+        foremost_dividend_monomial = deepcopy(dividend.children[0]) if isinstance(dividend, ADD) else deepcopy(dividend)
+        foremost_divisor_monomial = deepcopy(divisor.children[0]) if isinstance(divisor, ADD) else deepcopy(divisor)
+        if monomial_divides_monomial(foremost_dividend_monomial, foremost_divisor_monomial):
+            im = divide_monomials(foremost_dividend_monomial, foremost_divisor_monomial)
+            if isinstance(im, int):
+                im = CONST(im)
+            subtraction = ADD(*[MUL(CONST(-1), im, monomial) for monomial in divisor.children])
 
-    if monomial_divides_monomial(foremost_dividend_monomial, foremost_divisor_monomial):
-        
-        print("im:", divide_monomials(foremost_dividend_monomial, foremost_divisor_monomial))
+            for _ in range(4):
+                subtraction.simplify()
 
-    #divide_by = 
-
-
-
-
-    
-
-    
-
-    
-    
-
-    
-    
+            q.append(im)
+            for child in subtraction.children:
+                dividend.children.append(child)
+            for _ in range(4):
+                dividend.simplify()
+            dividend = change_to_lex_order(dividend)
+        else:
+            if len(q) > 1:
+                return ADD(*q), dividend
+            else:
+                return q[0], dividend
