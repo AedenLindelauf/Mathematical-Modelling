@@ -1,14 +1,27 @@
-from operands.binary import BINARY
-from operands.mul import MUL
-from operands.sub import SUB
-from operands.pow import POW
-
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
+    def latex(self):
+        return r'\frac{left}{right}'.format(left="{"+self.children[0].latex()+"}", 
+                                            right="{"+self.children[1].latex()+"}")
+
+    def compare(tree1, tree2):
+        if tree1.__class__ != tree2.__class__: 
+            return False
+        
+        if ( tree1.children[0].compare(tree2.children[0]) ) and ( tree1.children[1].compare(tree2.children[1]) ):
+            return True
+        return False
+        
+        #zou heel kort kunnen met: return ( tree1.children[0].compare(tree1.children[0]) ) and ( tree1.children[1].compare(tree1.children[1]) )
+
+    #simplification of fractions
+
     def simplify(self):
+        from operands.binary import BINARY
         from operands.mul import MUL
-        from operands.const import CONST
+        from operands.sub import SUB
+        from operands.pow import POW
 
         self.children[0].simplify()
         self.children[1].simplify()
@@ -47,7 +60,11 @@ class DIV(BINARY):
         # Check whether division by 0.
         if isinstance(self.children[1], CONST) and (self.children[1].value == 0) : raise ZeroDivisionError()
 
+        for child in self.children: child.simplify()  
+          
     def differentiate(self, variable: str):
+        from operands.binary import BINARY
+        from operands.mul import MUL
         # We use the quotient rule: (f/g)' = (f' * g - f * g') / (g ^ 2)
         f = self.children[0]
         g = self.children[1]

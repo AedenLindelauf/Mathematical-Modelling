@@ -4,8 +4,10 @@ from operands.fluid import FLUID
 from operands.const import CONST
 from operands.var import VAR
 from operands.mul import MUL
+from operands.div import DIV
 from operands.add import ADD 
 from operands.sub import SUB
+from copy import deepcopy
 
 class Tree:
     def __init__(self, root: NODE):
@@ -15,13 +17,22 @@ class Tree:
     def __str__(self):
         return self.root.__str__()
     
-    def simplify(self): 
+    def simplify(self):
         self.preprocess(self.root)
-        self.root.simplify()
-        #self.root.simplify()
-        #self.root.simplify()
-        # self.root.simplify()
+        self.convert_to_common_operator_structure()
+        
+        old = deepcopy(self.root)
 
+        self.root.simplify()
+        iterations = 1
+
+        while(not old.compare(self.root)):
+            old = deepcopy(self.root)
+            self.root.simplify()
+            iterations += 1
+
+        self.postprocess(self.root)
+        # print(f"Num of iterations: {iterations}")
 
     def convert_to_common_operator_structure(self):
         # Start the conversion process
@@ -43,9 +54,45 @@ class Tree:
             a = node.children[0]
             b = node.children[1]
             node.__class__ = ADD
-            node.children[0] = a
-            node.children[1] = MUL(CONST(-1), b)
+            node.children = [a, MUL(CONST(-1), b)] 
+
+        # Multiply everything by one. The simplification should solve this.
 
 
         self.preprocess(node.children[0])
         self.preprocess(node.children[1])
+
+    def postprocess(self, node):
+        "1 * f => f and -1 * c = -c"
+        if isinstance(node, MUL):
+            new_children = []
+            for item in node.children:
+                if not(isinstance(item, CONST) and item.value == 1):
+                    new_children.append(item)
+            if len(new_children) == 1:
+                node.__class__ = new_children[0].__class__
+                node.value = new_children[0].value
+                return
+            else:
+                node.children = new_children
+
+            # Now check for -1 * const * f(x).
+            new_children = []
+            c = 1
+            for item in node.children:
+                if isinstance(item, CONST):
+                    c *= item.value
+                else:
+                    new_children.append(item)
+
+            if c != 1: new_children.append(CONST(c))
+
+            if len(new_children) == 1:
+                node.__class__ = new_children[0].__class__
+                node.value = new_children[0].value
+            else:
+                node.children = new_children
+
+        if not isinstance(node, (VAR, CONST)):
+            for child in node.children:
+                self.postprocess(child)

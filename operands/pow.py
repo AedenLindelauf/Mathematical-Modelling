@@ -1,8 +1,3 @@
-from operands.binary import BINARY
-from operands.const import CONST
-from operands.var import VAR
-from operands.sub import SUB
-from operands.mul import MUL
 from copy import deepcopy
 
 class POW(BINARY):
@@ -18,6 +13,23 @@ class POW(BINARY):
         if isinstance(self.children[1], (CONST, VAR) ):
             res += f"{self.children[1].__str__()}"
         else: res += f"( {self.children[1].__str__()} )"
+
+        return res
+    
+    def latex(self):
+        res = ""
+
+        if isinstance(self.children[0], (CONST, VAR) ):
+            res += f"{self.children[0].__str__()}"
+        else: res += f"( {self.children[0].__str__()} )"
+        
+        res += " ^ {"
+
+        if isinstance(self.children[1], (CONST, VAR) ):
+            res += f"{self.children[1].__str__()}"
+        else: res += f"( {self.children[1].__str__()} )"
+
+        res += "}"
 
         return res
 
@@ -52,11 +64,16 @@ class POW(BINARY):
 
 
     def simplify(self):
+        from operands.add import ADD
+        from operands.binary import BINARY
+        from operands.const import CONST
+        from operands.var import VAR
+        from operands.sub import SUB
         from operands.mul import MUL
 
         self.children[0].simplify()
         self.children[1].simplify()
-
+        
         # Assume we have a^c.
         a = self.children[0]
         c = self.children[1]
@@ -77,16 +94,7 @@ class POW(BINARY):
             self.__class__ = CONST
             self.value = 1
         
-
-
-
-        # (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
-        if isinstance(a, MUL):
-            for index in range(len(a.children)):
-                a.children[index] = POW( deepcopy(c), a.children[index] )
-            self.__class__ = MUL
-            self.children = a.children
-
+        
         # Check the case where we have (a^b)^c = a^(b * c).
         if isinstance(self.children[0], POW):
             a = self.children[0].children[0]
@@ -95,6 +103,7 @@ class POW(BINARY):
             self.children[0] = a
             self.children[1] = MUL(b, c)
             self.children[1].simplify()
+
         
         # Check the case where we have a^(b^c) = a^(b * c).
         if isinstance(self.children[1], POW):
@@ -102,8 +111,35 @@ class POW(BINARY):
             c = self.children[1].children[1]
             self.children[1] = MUL(b, c)
             self.children[1].simplify()
+        
+        # (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
+        if isinstance(a, MUL):
+            for index in range(len(a.children)):
+                a.children[index] = POW(a.children[index], deepcopy(c))
+            self.__class__ = MUL
+            self.children = a.children
+
+        #Deze code togglen als je wel/niet wilt expanden!
+        # (a+b)^2 = (a+b)(a+b)
+        base = self.children[0]
+        exponent = self.children[1]
+        if isinstance(base, ADD):
+            if isinstance(exponent, CONST):
+                if (exponent.value > 1) and (isinstance(exponent.value, int)):
+                    between_brackets = []
+                    for i in range(exponent.value):
+                        between_brackets.append(base)
+                    self.__class__ = MUL
+                    self.children = between_brackets
+                    
+            # ^-1 etc functionaliteit toevoegen?
+
+        for child in self.children: child.simplify()
 
     def differentiate(self, variable: str):
+        from operands.mul import MUL
+        from operands.sub import SUB
+        from operands.pow import POW
         # Since we don't have exp or ln implemented, we only accept expressions where the variable is not in the exponent.
         assert not self.is_variable_in_exponent(variable), "Not implemented yet"
         # Power rule: (f ^ g)' = g * f ^ (g - 1) * f'
@@ -115,5 +151,3 @@ class POW(BINARY):
         new_pow = POW(new_exponent, base)
 
         return MUL(exponent, base_derivative, new_pow)
-        
-
