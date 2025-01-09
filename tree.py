@@ -45,7 +45,7 @@ class Tree:
         if isinstance(self.root, (BINARY, FLUID) ):
             self.root.convert_to_common_operator_structure()
     
-    def differentiate(self, variable: str = "x"):
+    def differentiate(self, variable: str):
         # self.preprocess(self.root)
         return Tree(self.root.differentiate(variable))
 
@@ -102,6 +102,3 @@ class Tree:
         if not isinstance(node, (VAR, CONST)):
             for child in node.children:
                 self.postprocess(child)
-
-    def differentiate(self, variable):
-        return self.root.differentiate(variable)

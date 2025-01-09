@@ -153,8 +153,7 @@ class GUI:
             expr = Expression(expr)
             tr = expr.tree
             print(tr)
-            new_tr = Tree(None)
-            new_tr.root = tr.differentiate(differentiation_variable)
+            new_tr = tr.differentiate(differentiation_variable)
             print(new_tr)
             new_tr.simplify()
             print(new_tr)
