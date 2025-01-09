@@ -1,5 +1,12 @@
 from verification import *
-from node import *
+from operands.add import ADD
+from operands.sub import SUB
+from operands.mul import MUL
+from operands.div import DIV
+from operands.node import NODE
+from operands.pow import POW
+from operands.var import VAR
+from operands.const import CONST
 from tree import Tree
 
 class Expression:
@@ -16,6 +23,12 @@ class Expression:
         if is_valid_expression(self.infix_expression):
             self.tokenize()
             self.create_tree()
+
+    def simplify(self):
+        self.tree.simplify()
+
+    def __str__(self):
+        return self.tree.__str__()
 
     def create_tree(self):
         """
@@ -59,7 +72,6 @@ class Expression:
                 break
             self._add_operator_to_node_stack(top_operator)
 
-        
     def _create_numerical_node(self) -> None:
         """
         The current token being considered is a numerical value. If the token is an integer (also when everything after the decimal point is zero) a constant node is added to the node stack, else if 
@@ -84,9 +96,8 @@ class Expression:
         greatest_common_divisor = calculate_greatest_common_divisor(initial_denominator, initial_numerator)
         final_numerator = initial_numerator // greatest_common_divisor
         final_denominator = initial_denominator // greatest_common_divisor
-        division_node = DIV()
-        division_node.left = CONST(final_numerator)
-        division_node.right = CONST(final_denominator)
+        division_node = DIV(CONST(final_numerator), 
+                            CONST(final_denominator))
         self.node_stack.append(division_node)
 
     def _add_operator_to_node_stack(self, operator : str) -> None:
@@ -96,9 +107,7 @@ class Expression:
         """
         right_hand_side = self.node_stack.pop()
         left_hand_side = self.node_stack.pop()
-        operator_node = self.OPERATOR_NODES[operator]()
-        operator_node.left = left_hand_side
-        operator_node.right = right_hand_side
+        operator_node = self.OPERATOR_NODES[operator](left_hand_side, right_hand_side)
         self.node_stack.append(operator_node)
 
     def _add_operator_to_stack(self):
@@ -130,8 +139,7 @@ class Expression:
                 
 
         self.operator_stack.append(self.token)
-        
-        
+                
     def tokenize(self) -> None:
         """
         creates a tokenized version of the infix expression.
@@ -140,14 +148,14 @@ class Expression:
         self.infix_expression = "x+1" -> self.tokenized_expression = ["x", "+", "1"]
         self.infix_expression ="xyz/-x" -> self.tokenized_expression = ['x', '*', 'y', '*', 'z', '/', '(', '-1', '*', 'x', ')']
         """
-        self.unary_minus_counter          : int       = 0
+        self.unary_minus_counter    : int       = 0
         self.tokenized_expression   : list[str] = []
         self.letter_stack           : list[str] = []
         self.number_stack           : list[str] = []
         shifted_expression          : list[str] = self.infix_expression[1:] + " "
         self.minus_is_unary         : bool      = True
 
-        for self.symbol, self.next_symbol in zip(self.infix_expression, shifted_expression):
+        for index, (self.symbol, self.next_symbol) in enumerate(zip(self.infix_expression, shifted_expression)):
             if self.symbol.isspace():
                 continue
 
@@ -167,18 +175,22 @@ class Expression:
             if self.next_symbol == "-":
                 self.determine_minus_nature()
             
-            elif not is_operator(self.symbol) and self.symbol != "(" and not is_letter(self.symbol) and (is_letter(self.next_symbol) or self.next_symbol == "("): # Long bool might fix later
+            elif is_operator(self.symbol) or self.symbol == "(":
+                pass
+
+            elif is_letter(self.symbol) and is_letter(self.next_symbol):
+                pass
+            
+            elif ((is_letter(self.next_symbol) or self.next_symbol == "(")): # Long bool might fix later
                 self.add_tokens("*")
             
-
-
     def handle_numerical_part(self):
         """
         The current symbol considered in making the tokenized expression is part of a numerical value. If it is the last part of this numerical value it is added to the tokenized expression.
         """
         self.number_stack.append(self.symbol)
 
-        if is_numerical_part(self.next_symbol):
+        if is_numerical_part(self.next_symbol) and self.next_symbol != "-": #hier gaat 1-1 fout
             return
         
         added_tokens : list[str] = ["".join(self.number_stack)]
@@ -187,7 +199,6 @@ class Expression:
         self.add_tokens(added_tokens)
         self.number_stack = []
 
-    
     def add_tokens(self, tokens : str | list[str]) -> None:
         """
         Add the tokens put in to the tokenized expression. If there were n unary minuses before it n "-1", "*" are added before the new token. 
@@ -205,7 +216,6 @@ class Expression:
 
         self.tokenized_expression.extend(added_tokens)
     
-
     def handle_operator(self) -> None:
         """
         The current symbol considered in making the tokenized expression is an operator. If it is not a unary minus sign it is just added to the tokenized expression. Otherwise, it is counted as an unary
@@ -217,7 +227,6 @@ class Expression:
         elif self.symbol == "-":
             self.unary_minus_counter += 1
 
-    
     def determine_minus_nature(self) -> None:
         """
         The next symbol considered in making the tokenized expresssion is a minus sign. This determines if it is unary or binary. 
@@ -227,7 +236,6 @@ class Expression:
         
         else:
             self.minus_is_unary = False
-
     
     def handle_letter(self) -> None:
         """
@@ -273,7 +281,3 @@ def division_with_remainder(a : int, divider : int) -> tuple[int]:
         remainder -= divider
         quotient += 1
     return sign_a * quotient, remainder       
-
-if __name__ == "__main__":
-    e = Expression("xyz/-x")
-    print(e.tokenized_expression)
