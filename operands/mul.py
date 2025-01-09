@@ -1,10 +1,5 @@
-from operands.fluid import FLUID
-from operands.const import CONST
-from operands.var import VAR
-from operands.node import NODE
-from operands.add import ADD
-from operands.pow import POW
 from copy import deepcopy
+
 
 class MUL(FLUID):
     def __str__(self):
@@ -73,6 +68,13 @@ class MUL(FLUID):
 
     def simplify(self):
         from operands.div import DIV
+        from operands.fluid import FLUID
+        from operands.const import CONST
+        from operands.var import VAR
+        from operands.node import NODE
+        from operands.add import ADD
+        from operands.pow import POW
+
         
         # Check if any of the children is also a MUL class, otherwise take this into account in the current MUL object.
         # This has to be done since we to convert (2x)/y to 2(x/y).
@@ -248,3 +250,22 @@ class MUL(FLUID):
         # If the child has children, simplify the children
         for child in self.children: child.simplify()
         
+        
+        
+        
+    def differentiate(self, variable: str):
+        from operands.pow import POW
+        from operands.mul import MUL
+        # We only implement differentiation for the binary tree. If there are more than 2 children, we raise an error.
+        if len(self.children) > 2:
+            raise AssertionError("Not implemented for non-binary trees")
+        # We use the product rule: (f * g)' = f * g' + f' * g.
+        f = self.children[0]
+        g = self.children[1]
+
+        f_derivative = f.differentiate(variable)
+        g_derivative = g.differentiate(variable)
+
+        new_left = MUL(f, g_derivative)
+        new_right = MUL(f_derivative, g)
+        return ADD(new_left, new_right)

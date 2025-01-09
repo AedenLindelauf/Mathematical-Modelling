@@ -5,3 +5,6 @@ class NODE:
 
     def simplify():
         pass
+
+    def differentiate():
+        pass

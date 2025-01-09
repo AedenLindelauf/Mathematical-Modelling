@@ -12,7 +12,7 @@ from copy import deepcopy
 class Tree:
     def __init__(self, root: NODE):
         self.root = root
-        self.preprocess(root)
+        #self.preprocess(root)
 
     def __str__(self):
         return self.root.__str__()
@@ -38,6 +38,10 @@ class Tree:
         # Start the conversion process
         if isinstance(self.root, (BINARY, FLUID) ):
             self.root.convert_to_common_operator_structure()
+    
+    def differentiate(self, variable: str = "x"):
+        # self.preprocess(self.root)
+        return Tree(self.root.differentiate(variable))
 
     def preprocess(self, node):
         # This function still assumes that the tree is binary (as it was initially created)

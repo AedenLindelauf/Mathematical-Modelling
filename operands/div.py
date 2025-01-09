@@ -1,5 +1,3 @@
-from operands.binary import BINARY
-
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
@@ -20,8 +18,10 @@ class DIV(BINARY):
     #simplification of fractions
 
     def simplify(self):
+        from operands.binary import BINARY
         from operands.mul import MUL
-        from operands.const import CONST
+        from operands.sub import SUB
+        from operands.pow import POW
 
         self.children[0].simplify()
         self.children[1].simplify()
@@ -60,6 +60,21 @@ class DIV(BINARY):
         # Check whether division by 0.
         if isinstance(self.children[1], CONST) and (self.children[1].value == 0) : raise ZeroDivisionError()
 
+        for child in self.children: child.simplify()  
+          
+    def differentiate(self, variable: str):
+        from operands.binary import BINARY
+        from operands.mul import MUL
+        # We use the quotient rule: (f/g)' = (f' * g - f * g') / (g ^ 2)
+        f = self.children[0]
+        g = self.children[1]
 
+        f_derivative = f.differentiate(variable)
+        g_derivative = g.differentiate(variable)
 
-        for child in self.children: child.simplify()
+        top_left = MUL(f_derivative, g)
+        top_right = MUL(f, g_derivative)
+        top = SUB(top_left, top_right)
+        bottom = POW(2, g)
+        # Currently DIV swaps left and right with initiation, so we swap them here
+        return DIV(bottom, top)

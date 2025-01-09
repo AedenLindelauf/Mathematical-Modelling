@@ -21,3 +21,8 @@ class CONST(NODE):
 
     def simplify(self):
         return
+    
+    def differentiate(self, variable: str):
+        return CONST(0)
+
+        

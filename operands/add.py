@@ -1,7 +1,4 @@
 from operands.fluid import FLUID
-from operands.var import VAR
-from operands.pow import POW
-from operands.div import DIV
 from copy import deepcopy
 
 class ADD(FLUID):
@@ -38,6 +35,9 @@ class ADD(FLUID):
         from operands.node import NODE
         from operands.const import CONST
         from operands.mul import MUL
+        from operands.var import VAR
+        from operands.pow import POW
+        from operands.div import DIV
 
         
         
@@ -190,10 +190,22 @@ class ADD(FLUID):
                 self.children.remove(child)
                 for grandchild in child.children:
                     self.children.append(grandchild)
-
         
-
-
         # If the child has children, simplify the children
         for child in self.children:
             child.simplify()
+            
+            
+            
+    def differentiate(self, variable: str):
+        from operands.var import VAR
+        from operands.pow import POW
+        from operands.div import DIV
+        # We only implement differentiation for the binary tree. If there are more than 2 children, we raise an error.
+        if len(self.children) > 2:
+            raise AssertionError("Not implemented for non-binary trees")
+        # We use the differentiation rule for addition: (f + g)' = f' + g'.    
+        new_left = self.children[0].differentiate(variable)
+        new_right = self.children[1].differentiate(variable)
+        return ADD(new_left, new_right)
+                        

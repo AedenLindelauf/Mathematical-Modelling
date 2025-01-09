@@ -1,4 +1,5 @@
 from operands.node import NODE
+from operands.const import CONST
 
 class VAR(NODE):
     def __init__(self, val: str):
@@ -18,3 +19,10 @@ class VAR(NODE):
 
     def simplify(self):
         return
+    
+    def differentiate(self, variable: str):
+        # We differentiate with respect to variable.
+        if self.value == variable:
+            return CONST(1)
+        else: 
+            return CONST(0)
