@@ -1,6 +1,7 @@
 from operands.fluid import FLUID
 from operands.var import VAR
 from operands.pow import POW
+from operands.div import DIV
 from copy import deepcopy
 
 class ADD(FLUID):
@@ -29,27 +30,7 @@ class ADD(FLUID):
                 return False
         
         return tree2children == []
-            
-
-        # a + b*d + c + a
-        # c + a + b*d + a 
-        # dit moet gezien worden als hetzelfde
-
-
-        #binary case:
-        # tree1leaf1 = tree1.children[0]
-        # tree1leaf2 = tree1.children[1]
-        # tree2leaf1 = tree2.children[0]
-        # tree2leaf2 = tree2.children[1]
-
-        # if tree1leaf1.compare(tree2leaf1) and tree1leaf2.compare(tree2leaf2):
-        #     print("case1")
-        #     return True
-        # elif tree1leaf1.compare(tree2leaf2) and tree1leaf2.compare(tree2leaf1):
-        #     print("case2")
-        #     return True
-        # return False
-
+        
 
         
 
@@ -57,10 +38,9 @@ class ADD(FLUID):
         from operands.node import NODE
         from operands.const import CONST
         from operands.mul import MUL
- 
-        # If the child has children, simplify the children
-        for child in self.children:
-            child.simplify()
+
+        
+        
 
         # ===========================================================================================
         # ====================================== Add constants ======================================
@@ -140,7 +120,6 @@ class ADD(FLUID):
         if remove_const_item_index is not None:
             self.children.pop(remove_const_item_index)
         
-        
 
         # Everything is a MUL class.
         i: int = len(self.children) - 1
@@ -174,6 +153,9 @@ class ADD(FLUID):
             new_children.append(self.children[-1])
             self.children.pop()
             i -= 1
+        
+       
+
 
          # If there is still one more element in the array, then we need to copy it as well.
         if len(self.children) == 1: new_children.append(self.children[0])
@@ -190,27 +172,28 @@ class ADD(FLUID):
                 child.children = replacing_children
         
 
-
         if len(new_children) > 1:
             self.children = new_children
         else:
             self.__class__ = new_children[0].__class__
             if isinstance(new_children[0], MUL):
                 self.children = new_children[0].children
-            else: self.children = new_children
-
-        
+            else: 
+                self.children = new_children
+            
         # ===========================================================================================
         # =========================================== END ===========================================
         # ===========================================================================================
         
-        #Dit stond er eerst wel in? wat is dit?
-        # if not isinstance(self, MUL):
-        #     for child in self.children: child.simplify()
-        # else: self.simplify()
-        
         for child in self.children:
-            if isinstance(child, ADD):
+            if isinstance(child, ADD) and self.__class__ == ADD:
                 self.children.remove(child)
                 for grandchild in child.children:
                     self.children.append(grandchild)
+
+        
+
+
+        # If the child has children, simplify the children
+        for child in self.children:
+            child.simplify()

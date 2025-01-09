@@ -73,9 +73,6 @@ class MUL(FLUID):
 
     def simplify(self):
         from operands.div import DIV
-
-        # If the child has children, simplify the children
-        for child in self.children: child.simplify()
         
         # Check if any of the children is also a MUL class, otherwise take this into account in the current MUL object.
         # This has to be done since we to convert (2x)/y to 2(x/y).
@@ -131,6 +128,7 @@ class MUL(FLUID):
 
 
         expansion = []
+        
 
         for i, child in enumerate(self.children):
             
@@ -145,6 +143,7 @@ class MUL(FLUID):
 
         #END OF a * (b + c) ===================================================            
 
+        
     #door deze twee (boven en onder) om te draaien kunnen we expansion en samenvoegen van machten 
     #prioritiseren ofniet?
 
@@ -246,7 +245,6 @@ class MUL(FLUID):
             else:
                 self.children = new_children
         
-        
-        for child in self.children:
-            child.simplify()
+        # If the child has children, simplify the children
+        for child in self.children: child.simplify()
         

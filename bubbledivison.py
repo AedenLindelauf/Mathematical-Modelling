@@ -1,6 +1,13 @@
 from expression import Expression
 from tree import Tree
-from node import *
+from operands.const import CONST
+from operands.var import VAR
+from operands.node import NODE
+from operands.add import ADD
+from operands.pow import POW
+from operands.div import DIV
+from operands.binary import BINARY
+from operands.mul import MUL
 
 def bubble_division(node : NODE) -> Tree:
     if not isinstance(node, BINARY):
