@@ -151,8 +151,8 @@ class POW(BINARY):
         base = self.children[0]
         exponent = self.children[1]
         
-        new_exponent = SUB(CONST(1), exponent)
+        new_exponent = SUB(exponent, CONST(1))
         base_derivative = base.differentiate(variable)
-        new_pow = POW(new_exponent, base)
+        new_pow = POW(base, new_exponent)
 
         return MUL(exponent, base_derivative, new_pow)

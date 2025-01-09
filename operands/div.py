@@ -81,6 +81,6 @@ class DIV(BINARY):
         top_left = MUL(f_derivative, g)
         top_right = MUL(f, g_derivative)
         top = SUB(top_left, top_right)
-        bottom = POW(CONST(2), g)
+        bottom = POW(g, CONST(2))
         # Currently DIV swaps left and right with initiation, so we swap them here
-        return DIV(bottom, top)
+        return DIV(top, bottom)
