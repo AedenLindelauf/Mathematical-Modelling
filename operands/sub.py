@@ -27,4 +27,4 @@ class SUB(BINARY):
         
         new_left = self.children[0].differentiate(variable)
         new_right = self.children[1].differentiate(variable)
-        return SUB(new_right,new_left)
+        return SUB(new_left,new_right)

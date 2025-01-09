@@ -105,7 +105,7 @@ def consists_of_valid_characters(expression : str, raise_error : bool = False) -
     
     if raise_error:
         message_end = "is not a valid character" if len(invalid_characters_used) == 1 else "are not valid characters"
-        raise InvalidCharacterError(f"{", ".join(invalid_characters_used)} {message_end}.")
+        raise InvalidCharacterError(f"{', '.join(invalid_characters_used)} {message_end}.")
 
 def starts_with_binary_operator(expression : str, raise_error_if_true : bool = False, raise_error_if_false : bool = False) -> bool:
     """
@@ -158,7 +158,7 @@ def has_consecutive_operators(expression : str, raise_error : bool = False) -> b
         return False
     
     if raise_error:
-        raise OperatorPlacementError(f"Cannot have these operators consecutivively [{", ".join(consecutive_operators)}]")
+        raise OperatorPlacementError(f"Cannot have these operators consecutivively [{', '.join(consecutive_operators)}]")
 
     return True
 
@@ -177,7 +177,7 @@ def has_operator_after_parenthesis(expression : str, raise_error : bool = False)
         return False
     
     if raise_error:
-        raise OperatorPlacementError(f"Cannot have these operators right after a opening parenthesis like [{", ".join(parenthesis_operator_combos)}]")
+        raise OperatorPlacementError(f"Cannot have these operators right after a opening parenthesis like [{', '.join(parenthesis_operator_combos)}]")
     
     return True
 
