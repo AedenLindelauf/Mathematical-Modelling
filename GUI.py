@@ -94,7 +94,6 @@ class GUI:
         try:
             expr = Expression(expr)
             tr = expr.tree
-            tr.simplify()
 
             tmptext = "$" + tr.latex() + "$"
 
@@ -155,6 +154,7 @@ class GUI:
             print(tr)
             new_tr = Tree(None)
             new_tr.root = tr.differentiate(differentiation_variable)
+            print(new_tr)
             new_tr.simplify()
             print(new_tr)
             res = new_tr.__str__()
