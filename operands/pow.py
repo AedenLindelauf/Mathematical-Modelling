@@ -21,21 +21,23 @@ class POW(BINARY):
         return res
     
     def latex(self):
-        res = ""
+        from operands.const import CONST
+        from operands.var import VAR
+
+        # Display a^b
+        a, b = None, None
 
         if isinstance(self.children[0], (CONST, VAR) ):
-            res += f"{self.children[0].__str__()}"
-        else: res += f"( {self.children[0].__str__()} )"
+            a = f"{self.children[0].latex()}"
+        else: a = f"( {self.children[0].latex()} )"
         
-        res += " ^ {"
-
         if isinstance(self.children[1], (CONST, VAR) ):
-            res += f"{self.children[1].__str__()}"
-        else: res += f"( {self.children[1].__str__()} )"
+            b = f"{self.children[1].latex()}"
+        else: b = f"( {self.children[1].latex()} )"
 
-        res += "}"
+        res = a + r"^{" + b + r"}"
 
-        return res
+        return res 
 
     def compare(tree1, tree2, exponent = True):
         if tree1.__class__ != tree2.__class__: # Is er een ^ node die bv geljk kan zijn aan een * node tree? anders klopt dit niet
@@ -56,6 +58,9 @@ class POW(BINARY):
             return True
         
     def is_variable_in_exponent(self, variable: str, node = None) -> bool:
+        from operands.const import CONST
+        from operands.var import VAR
+
         if node == None:
             node = self.children[1]
         if node.__class__ in (VAR, CONST):

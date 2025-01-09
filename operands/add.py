@@ -74,6 +74,7 @@ class ADD(FLUID):
                 term = new_children[0]
                 self.__class__ = term.__class__
                 self.children = term.children
+                return
              else:
                 self.children = new_children
         else:

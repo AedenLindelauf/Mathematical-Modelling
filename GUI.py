@@ -94,6 +94,7 @@ class GUI:
         try:
             expr = Expression(expr)
             tr = expr.tree
+            tr.convert_to_common_operator_structure()
 
             tmptext = "$" + tr.latex() + "$"
 

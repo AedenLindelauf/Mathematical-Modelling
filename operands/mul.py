@@ -23,8 +23,8 @@ class MUL(FLUID):
 
         for child in self.children:
             if isinstance(child, (CONST, VAR) ):
-                string.append( f"{child.__str__()}" )
-            else: string.append( f"( {child.__str__()} )" )
+                string.append( f"{child.latex()}" )
+            else: string.append( f"( {child.latex()} )" )
         
         return r" \cdot ".join(string)
 

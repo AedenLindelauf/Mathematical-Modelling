@@ -26,10 +26,13 @@ class Tree:
         
         old = deepcopy(self.root)
 
+        print(self)
+
         self.root.simplify()
         iterations = 1
 
         while(not old.compare(self.root)):
+            print(self)
             old = deepcopy(self.root)
             self.root.simplify()
             iterations += 1
