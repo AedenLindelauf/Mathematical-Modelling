@@ -144,13 +144,14 @@ class POW(BINARY):
         from operands.mul import MUL
         from operands.sub import SUB
         from operands.pow import POW
+        from operands.const import CONST
         # Since we don't have exp or ln implemented, we only accept expressions where the variable is not in the exponent.
         assert not self.is_variable_in_exponent(variable), "Not implemented yet"
         # Power rule: (f ^ g)' = g * f ^ (g - 1) * f'
         base = self.children[0]
         exponent = self.children[1]
         
-        new_exponent = SUB(1, exponent)
+        new_exponent = SUB(CONST(1), exponent)
         base_derivative = base.differentiate(variable)
         new_pow = POW(new_exponent, base)
 

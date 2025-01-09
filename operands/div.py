@@ -70,6 +70,7 @@ class DIV(BINARY):
         from operands.mul import MUL
         from operands.sub import SUB
         from operands.pow import POW
+        from operands.const import CONST
         # We use the quotient rule: (f/g)' = (f' * g - f * g') / (g ^ 2)
         f = self.children[0]
         g = self.children[1]
@@ -80,6 +81,6 @@ class DIV(BINARY):
         top_left = MUL(f_derivative, g)
         top_right = MUL(f, g_derivative)
         top = SUB(top_left, top_right)
-        bottom = POW(2, g)
+        bottom = POW(CONST(2), g)
         # Currently DIV swaps left and right with initiation, so we swap them here
         return DIV(bottom, top)
