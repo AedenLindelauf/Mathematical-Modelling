@@ -1,3 +1,5 @@
+from operands.binary import BINARY
+
 class DIV(BINARY):
     def __str__(self): return f"( {super().__str__('/')} )"
 
@@ -22,6 +24,7 @@ class DIV(BINARY):
         from operands.mul import MUL
         from operands.sub import SUB
         from operands.pow import POW
+        from operands.const import CONST
 
         self.children[0].simplify()
         self.children[1].simplify()
@@ -65,6 +68,8 @@ class DIV(BINARY):
     def differentiate(self, variable: str):
         from operands.binary import BINARY
         from operands.mul import MUL
+        from operands.sub import SUB
+        from operands.pow import POW
         # We use the quotient rule: (f/g)' = (f' * g - f * g') / (g ^ 2)
         f = self.children[0]
         g = self.children[1]

@@ -17,6 +17,9 @@ class Tree:
     def __str__(self):
         return self.root.__str__()
     
+    def latex(self):
+        return self.root.latex()
+
     def simplify(self):
         self.preprocess(self.root)
         self.convert_to_common_operator_structure()
@@ -96,3 +99,6 @@ class Tree:
         if not isinstance(node, (VAR, CONST)):
             for child in node.children:
                 self.postprocess(child)
+
+    def differentiate(self, variable):
+        return self.root.differentiate(variable)

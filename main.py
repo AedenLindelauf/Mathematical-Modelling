@@ -1,26 +1,15 @@
 from tree import Tree
-from node import *
 from GUI import GUI
 from expression import *
 import verification
 from tree import Tree
 
-if __name__ == "__main__":
-    gui = GUI()
-
-# if __name__ == "__main__":
-#     e = Expression("(x+1)/2")
-#     test_tree = e.tree
-
-#     e = MUL(CONST(1), CONST(2))
-#     print(e.latex())
-
-    
+if __name__ == "__main__":    
     # expr = "( a * b * c ) ^ d"
-#     expr = "a*1+a"
+    # expr = "a*1+a"
     # expr = "2a-2a"
     # expr = "a ^ (b ^ (c ^ d))"
-#     expr = "3(a+3)"
+    # expr = "3(a+3)"
     # expr = "a*a"
     # expr = "1*2 + 0*x"
     # expr = "1+2"
@@ -28,8 +17,8 @@ if __name__ == "__main__":
     # expr = "a*(x + 1)"
     # expr = "x + 1 + 2x" 
     # expr = "3x^2 - 3x^2" 
-#     expr = "x^2 + 1 + 2*x^2"
-#     expr = "2*x^2"
+    # expr = "x^2 + 1 + 2*x^2"
+    # expr = "2*x^2"
     # expr = "6^6-a+a+a(c+d)-ac-ad+a*a-a*a"
 
     # expr = "3(a+3)+5"
@@ -69,29 +58,28 @@ if __name__ == "__main__":
     # expr = "(2*a)*a"
     # expr = "10a-2a"
     # expr = "-a +a"
-#     expr = "3(a+b)-3a-3b"
-#     expr = "3x-3x"
-#     expr = "3(a+b)-3a-3b"
-#     expr = "a*2a"
-#     expr = "a * (x/y)"
-#     expr = "2 * (x/y)"
-#     expr = "x/y + (2x)/y"
-#     expr = "a * s * (x/y) * b * (1/b)"
-#     expr = "a * a"
-#     expr = "3x-3x"
-#     expr = "(a+b)^2"
-#     expr = "(a+b)^2+(a+b)^2+3*(a+b)^2"
-#     expr = "(a+b)^1 * (a+b)^-2"
-#     expr = "a/x +1/x"
-#     expr = "(a+b)a + (a+b)a"
-#     # expr = "(a+b)^2 + (a+b)^2"
-#     expr = "(a+b)(a+b) + (a+b)(a+b)"
+    # expr = "3(a+b)-3a-3b"
+    # expr = "3x-3x"
+    # expr = "3(a+b)-3a-3b"
+    # expr = "a*2a"
+    # expr = "a * (x/y)"
+    # expr = "2 * (x/y)"
+    # expr = "x/y + (2x)/y"
+    # expr = "a * s * (x/y) * b * (1/b)"
+    # expr = "a * a"
+    # expr = "3x-3x"
+    # expr = "(a+b)^2"
+    # expr = "(a+b)^2+(a+b)^2+3*(a+b)^2"
+    # expr = "(a+b)^1 * (a+b)^-2"
+    # expr = "a/x +1/x"
+    # expr = "(a+b)a + (a+b)a"
+    # expr = "(a+b)^2 + (a+b)^2"
+    # expr = "(a+b)(a+b) + (a+b)(a+b)"
+    expr = "( a * b * c ) ^ d"
+    expr = "az/b"
 
-#     #en 3(a+b)-3a-3b werkt nog niet, soort van wel maar hij doet de -variant niet weg.
-    
-
-#     e = Expression(expr)
-#     test_tree = e.tree
-#     print(f"Input:\t {test_tree}")
-#     test_tree.simplify()
-#     print(f"Output:\t {test_tree}")
+    e = Expression(expr)
+    test_tree = e.tree
+    print(f"Input:\t {test_tree}")
+    test_tree.simplify()
+    print(f"Output:\t {test_tree}")

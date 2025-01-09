@@ -1,8 +1,11 @@
 from copy import deepcopy
-
+from operands.fluid import FLUID
 
 class MUL(FLUID):
     def __str__(self):
+        from operands.const import CONST
+        from operands.var import VAR
+        
         string = []
 
         for child in self.children:
@@ -13,6 +16,9 @@ class MUL(FLUID):
         return " * ".join(string)
     
     def latex(self):
+        from operands.const import CONST
+        from operands.var import VAR
+
         string = []
 
         for child in self.children:
@@ -26,6 +32,8 @@ class MUL(FLUID):
             """
             Returns the const (1 if not present) and the remaining term.
             """
+            from operands.const import CONST
+
             f = deepcopy(self) # f is constructed as f = a * g
             a = CONST(1)
 
@@ -43,6 +51,7 @@ class MUL(FLUID):
             return a, f
 
     def compare(tree1, tree2):
+        from operands.const import CONST
         if tree1.__class__ != tree2.__class__: 
             return False
         tree1children = tree1.children.copy()
@@ -256,6 +265,7 @@ class MUL(FLUID):
     def differentiate(self, variable: str):
         from operands.pow import POW
         from operands.mul import MUL
+        from operands.add import ADD
         # We only implement differentiation for the binary tree. If there are more than 2 children, we raise an error.
         if len(self.children) > 2:
             raise AssertionError("Not implemented for non-binary trees")

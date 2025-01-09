@@ -1,7 +1,11 @@
 from copy import deepcopy
+from operands.binary import BINARY
 
 class POW(BINARY):
     def __str__(self): 
+        from operands.const import CONST
+        from operands.var import VAR
+
         res = ""
 
         if isinstance(self.children[0], (CONST, VAR) ):
