@@ -4,7 +4,8 @@ from operands.const import CONST
 class SUB(BINARY):
     def __str__(self): return super().__str__("-")
 
-    def latex(self): return self.__str__()
+    def latex(self): 
+        return " - ".join( [child.latex() for child in self.children] )
 
     def simplify(self):
         self.children[0].simplify()

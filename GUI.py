@@ -16,7 +16,7 @@ class GUI:
 
         root = Tk()
 
-        root.title("Amazing mathematica copy")
+        root.title("Symbolic Manipulations")
         root.geometry('800x250')
         root.configure(bg='lightgray')
 
