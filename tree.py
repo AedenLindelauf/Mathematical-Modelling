@@ -46,7 +46,7 @@ class Tree:
             self.root.convert_to_common_operator_structure()
     
     def differentiate(self, variable: str):
-        # self.preprocess(self.root)
+        self.preprocess(self.root)
         return Tree(self.root.differentiate(variable))
 
     def preprocess(self, node):
