@@ -27,6 +27,9 @@ class Expression:
     def simplify(self):
         self.tree.simplify()
 
+    def differentiate(self, variable : str):
+        self.tree = self.tree.differentiate(variable)
+
     def __str__(self):
         return self.tree.__str__()
 

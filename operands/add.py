@@ -59,10 +59,15 @@ class ADD(FLUID):
         if new_children: 
              if const_sum != 0: new_children.append(CONST(const_sum))
              if len(new_children) == 1:
-                term = new_children[0]
-                self.__class__ = term.__class__
-                self.children = term.children
-                return
+                if new_children[0].__class__ == VAR:
+                    self.__class__ = VAR
+                    self.value = new_children[0].value
+                    return
+                else:
+                    term = new_children[0]
+                    self.__class__ = term.__class__
+                    self.children = term.children
+                    return
              else:
                 self.children = new_children
         else:
