@@ -78,6 +78,7 @@ if __name__ == "__main__":
     expr = "( a * b * c ) ^ d"
     expr = "az/b"
     expr = "(x^2)^(1/2)"
+    expr = "(x^(1/3))^(1+y)"
 
     e = Expression(expr)
     test_tree = e.tree

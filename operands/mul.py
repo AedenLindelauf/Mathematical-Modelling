@@ -125,7 +125,7 @@ class MUL(FLUID):
             self.children = []
             return
 
-        #a * (b + c) ===================================================
+        
 
         #eerst het probleem van die a *(a*1) oplossen, kan weg als *1 weg is.
         if isinstance(self, (CONST, VAR)):
@@ -137,16 +137,16 @@ class MUL(FLUID):
                 for grandchild in child.children:
                     self.children.append(grandchild)
 
-
+        
+        #a * (b + c) ===================================================
         expansion = []
         
-
         for i, child in enumerate(self.children):
             
             if isinstance(child, ADD):
                 for grandchild in child.children:
                     other_factors = self.children.copy()[:i] + self.children.copy()[i+1:] #everything except the expansion term
-                    expanded = MUL(*(other_factors + [grandchild]))
+                    expanded = MUL(*(deepcopy(other_factors + [grandchild])))
                     expansion.append(expanded)
                 self.__class__ = ADD
                 self.children = expansion
@@ -255,7 +255,8 @@ class MUL(FLUID):
                 self.children = new_children
         
         # If the child has children, simplify the children
-        for child in self.children: child.simplify()
+        for child in self.children: 
+            child.simplify()
         
         
         

@@ -112,6 +112,7 @@ class POW(BINARY):
             self.children[0] = a
             self.children[1] = MUL(b, c)
             self.children[1].simplify()
+            return
         
         
         # (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
