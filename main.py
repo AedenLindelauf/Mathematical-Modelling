@@ -77,10 +77,10 @@ if __name__ == "__main__":
     # expr = "(a+b)(a+b) + (a+b)(a+b)"
     expr = "( a * b * c ) ^ d"
     expr = "az/b"
+    expr = "(x^2)^(1/2)"
 
     e = Expression(expr)
     test_tree = e.tree
     print(f"Input:\t {test_tree}")
-    test_tree = test_tree.differentiate("x")
     test_tree.simplify()
     print(f"Output:\t {test_tree}")

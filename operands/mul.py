@@ -237,9 +237,7 @@ class MUL(FLUID):
 
             for i in range(len(self.children)):
                 child = self.children[i]
-                if isinstance(child, CONST):
-                    new_children.append(child)
-                elif isinstance(child, DIV):
+                if isinstance(child, DIV):
                     new_children[0].children[0] = MUL( child.children[0], new_children[0].children[0] )
                     new_children[0].children[1] = MUL( child.children[1], new_children[0].children[1] )
                 else:
