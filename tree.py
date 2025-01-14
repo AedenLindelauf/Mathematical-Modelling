@@ -46,7 +46,6 @@ class Tree:
             self.root.convert_to_common_operator_structure()
     
     def differentiate(self, variable: str):
-        self.preprocess(self.root)
         return Tree(self.root.differentiate(variable))
 
     def preprocess(self, node):
@@ -62,11 +61,9 @@ class Tree:
             node.__class__ = ADD
             node.children = [a, MUL(CONST(-1), b)] 
 
-        # Multiply everything by one. The simplification should solve this.
 
-
-        self.preprocess(node.children[0])
-        self.preprocess(node.children[1])
+        for child in node.children:
+            self.preprocess(child)
 
     def postprocess(self, node):
         "1 * f => f and -1 * c = -c"
