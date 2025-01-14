@@ -112,14 +112,7 @@ class POW(BINARY):
             self.children[0] = a
             self.children[1] = MUL(b, c)
             self.children[1].simplify()
-
         
-        # Check the case where we have a^(b^c) = a^(b * c).
-        if isinstance(self.children[1], POW):
-            b = self.children[1].children[0]
-            c = self.children[1].children[1]
-            self.children[1] = MUL(b, c)
-            self.children[1].simplify()
         
         # (a ... b) ^ c = (a ^ c) * ... * (b ^ c).
         if isinstance(a, MUL):
