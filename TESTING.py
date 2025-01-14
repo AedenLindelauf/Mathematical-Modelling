@@ -34,7 +34,9 @@ def TEST(simplify: bool):
             if simplify:
                 input_expr.simplify()
             else:
-                raise NotImplementedError("Differentiation not yet implemented...")
+                input_expr.differentiate("x")
+                input_expr.tree.convert_to_common_operator_structure()
+                input_expr.simplify()
 
             if input_expr.tree.root.compare(answer.tree.root):
                 print(Fore.GREEN + 'Passed test {:>3}'.format(index+1), end=' || ')
@@ -74,4 +76,4 @@ if __name__ == "__main__":
     init(autoreset=True)
     system("cls")
 
-    TEST(True)
+    TEST(False)
