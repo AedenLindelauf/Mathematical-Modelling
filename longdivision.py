@@ -347,9 +347,6 @@ def long_division(node: DIV):
     if not isinstance(node, DIV):
         print("Long division can only be performed on a DIV class")
         return node #AssertionError("Division algorithm can only occur on division class")
-    if not isinstance(node.children[1], ADD):
-        #Quickly write an alternative case perhaps
-        return node
     if not check_expression_for_polynomial_notation(node.children[0]):
         print("Dividend must be a polynomial")
         return node #AssertionError("Numerator must be in polynomial form")
@@ -362,20 +359,22 @@ def long_division(node: DIV):
     
     dividend = deepcopy(change_to_lex_order(node.children[0]))
     divisor = deepcopy(change_to_lex_order(node.children[1]))
-
-    if not isinstance(dividend, ADD) and not isinstance(divisor, ADD):
-        return node
     
     q = []
+    counter = 0
 
     while True:
-        foremost_dividend_monomial = deepcopy(dividend.children[0]) if isinstance(dividend, ADD) else deepcopy(dividend)
-        foremost_divisor_monomial = deepcopy(divisor.children[0]) if isinstance(divisor, ADD) else deepcopy(divisor)
+        foremost_dividend_monomial = deepcopy(dividend.children[0]) #if isinstance(dividend, ADD) else deepcopy(dividend)
+        foremost_divisor_monomial = deepcopy(divisor.children[0]) #if isinstance(divisor, ADD) else deepcopy(divisor)
+        counter += 1
+        if counter > 10:
+            return
         if monomial_divides_monomial(foremost_dividend_monomial, foremost_divisor_monomial):
             im = divide_monomials(foremost_dividend_monomial, foremost_divisor_monomial)
             if isinstance(im, int):
                 im = CONST(im)
             subtraction = ADD(*[MUL(CONST(-1), im, monomial) for monomial in divisor.children])
+            #subtraction.simplify()
 
             for _ in range(4):
                 subtraction.simplify()

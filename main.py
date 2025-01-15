@@ -86,7 +86,7 @@ if __name__ == "__main__":
     e = Expression(expr)
     test_tree = e.tree
     print(f"Input:\t {test_tree}")
-    #test_tree = test_tree.differentiate("x")
-    #test_tree.simplify()
-    print(long_division(test_tree.root))
+    test_tree = test_tree.differentiate("x")
+    test_tree.simplify()
+    #print(long_division(test_tree.root))
     print(f"Output:\t {test_tree}")
