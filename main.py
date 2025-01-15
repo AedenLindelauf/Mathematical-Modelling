@@ -3,6 +3,7 @@ from GUI import GUI
 from expression import *
 import verification
 from tree import Tree
+from longdivision import long_division
 
 if __name__ == "__main__":    
     # expr = "( a * b * c ) ^ d"
@@ -80,10 +81,12 @@ if __name__ == "__main__":
     expr = "(x^2)^(1/2)"
     expr = "(x^(1/3))^(1+y)"
     expr = "(xyz)^a"
+    expr = "(x^8-1)/(x-1)"
 
     e = Expression(expr)
     test_tree = e.tree
     print(f"Input:\t {test_tree}")
-    test_tree = test_tree.differentiate("x")
-    test_tree.simplify()
+    #test_tree = test_tree.differentiate("x")
+    #test_tree.simplify()
+    print(long_division(test_tree.root))
     print(f"Output:\t {test_tree}")

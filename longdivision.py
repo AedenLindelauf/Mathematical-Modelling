@@ -41,9 +41,6 @@ def check_expression_for_polynomial_notation(node: NODE) -> bool:
     return True
         
 def count_degree_of_polynomial_space(node: NODE) -> list[str]:
-    print("Counting degree of", node)
-    node.simplify()
-    print("Simplified counting degree of:", node)
     vars = []
     if isinstance(node, VAR):
         return [node.value]
@@ -55,7 +52,6 @@ def count_degree_of_polynomial_space(node: NODE) -> list[str]:
             if isinstance(child, VAR):
                 if (not child.value in vars):
                     vars.append(child.value)
-                    print("Just appended", child.value, child.__class__)
                 continue
             if isinstance(child, FLUID):
                 descend(child)
@@ -63,11 +59,8 @@ def count_degree_of_polynomial_space(node: NODE) -> list[str]:
             if isinstance(child, POW):
                 if isinstance(child.children[0], VAR) and not child.children[0].value in vars:
                     vars.append(child.children[0].value)
-                    print("Just appended", child.children[0].value, child.__class__)
 
     descend(node)
-
-    print("Found degree:", vars)
 
     return vars
 
@@ -75,14 +68,12 @@ def sort_monomial(node: NODE):
     #If the simplify functions properly, and x * x always gets simplified to x^2, this should work perfectly. Otherwise its fucked
     if isinstance(node, MUL) and len(node.children) == 2 and isinstance(node.children[0], CONST) and isinstance(node.children[1], CONST):
         return node
-    
-    if isinstance(node, CONST) or isinstance(node, VAR) or isinstance(node, POW):
-        return node
 
-    print("Sorting:", node)
     vars = count_degree_of_polynomial_space(node)
     vars.sort()
 
+    if isinstance(node, CONST) or isinstance(node, VAR) or isinstance(node, POW):
+        return node
     d = dict.fromkeys(vars, -1)
     const = []
     for i, child in enumerate(node.children):
@@ -177,11 +168,8 @@ def compare_two_monomials(mon1: NODE, mon2: NODE) -> tuple[NODE, NODE]:
 def change_to_lex_order(node: ADD) -> ADD: # Assume there are no dumb notations such as x*x*x but instead that has been simplified to x^3
     if not isinstance(node, ADD):
         return node
-
+    
     vars = count_degree_of_polynomial_space(node)
-    for var in vars:
-        if isinstance(var, int):
-            vars.remove(var)
     vars.sort()
 
     # Sort all the monomials
@@ -257,30 +245,8 @@ def monomial_divides_monomial(dividend, divisor) -> bool:
     
     return False
 
-def find_long_monomial_diff(mon_big, mon_small) -> NODE:
+def find_long_monomial_diff(mon_big, mon_small):
     # Other trivial cases
-    """
-    if isinstance(mon_big, VAR):
-        if isinstance(mon_small, VAR):
-            if mon_big.children[0].value == mon_small.children[0].value:
-                return CONST(1)
-            return DIV()
-        if isinstance(mon_small, CONST):
-            return DIV(mon_big, mon_small)
-    
-    if isinstance(mon_big, POW):
-        if isinstance(mon_small, POW):
-            if mon_big.children[1].value == mon_small.children[1].value:
-                return CONST(1)
-            if mon_big.children[1].value == mon_small.children[1].value + 1:
-                return mon_big.children[0]
-        if isinstance(mon_small, VAR):
-            return CONST(1)
-        if isinstance(mon_small, CONST):
-            return DIV(mon_big, mon_small)"""
-
-    print("After taking out coefficients the monomials look as follows:")
-    print(mon_big, mon_small)
     l = []
     for child in mon_big.children:
         if not isinstance(child, CONST):
@@ -292,10 +258,8 @@ def find_long_monomial_diff(mon_big, mon_small) -> NODE:
             if isinstance(child, POW):
                 var = child.children[0].value
                 degree_big = child.children[1].value
-            print(var, degree_big, "bruh", child)
             mutation_occured = False
             for baby in mon_small.children:
-                print(baby)
                 if isinstance(baby, VAR) and var == baby.value:
                     mutation_occured = True
                     if degree_big - 1 == 1:
@@ -311,38 +275,12 @@ def find_long_monomial_diff(mon_big, mon_small) -> NODE:
             if not mutation_occured:
                 l.append(child)
     if len(l) == 0:
-        print("here")
-        return CONST(1)
+        return VAR(1)
     if len(l) == 1:
         return l[0]
     return sort_monomial(MUL(*l))
 
 def divide_monomials(dividend: NODE, divisor: NODE) -> NODE:
-    """
-    This was an attempt to fix the "divisor has a CONST"-issue, discontinued
-    coef_dividend = []
-    dividend_children = dividend.children.copy()
-    coef_divisor = []
-    divisor_children = divisor.children.copy()
-
-    if isinstance(dividend, MUL):
-        for child in dividend.children:
-            if isinstance(child, CONST):
-                coef_dividend.append(child)
-                dividend_children.remove(child)
-        if len(dividend_children) == 0:
-            return DIV(dividend, divisor)
-        if len(dividend_children) == 1:
-            
-            
-    if isinstance(divisor, MUL):
-        for child in divisor.children:
-            if isinstance(child, CONST):
-                coef_divisor.append(child)
-                divisor_children.remove(child)
-
-    """
-
     if isinstance(divisor, CONST) and not isinstance(dividend, CONST) and not isinstance(dividend, VAR):
         for i in range(len(dividend.children)):
             if isinstance(dividend.children[i], CONST):
@@ -358,7 +296,7 @@ def divide_monomials(dividend: NODE, divisor: NODE) -> NODE:
     if isinstance(divisor, VAR):
         if isinstance(dividend, VAR):
             if dividend.value == divisor.value:
-                return CONST(1)
+                return 1
             return DIV(dividend.value, divisor.value)
         if isinstance(dividend, POW):
             if dividend.children[0].value == divisor.value:
@@ -384,7 +322,7 @@ def divide_monomials(dividend: NODE, divisor: NODE) -> NODE:
         if isinstance(dividend, POW):
             diff = dividend.children[1].value - divisor.children[1].value
             if diff == 0:
-                return CONST(1)
+                return 1
             if diff == 1:
                 return VAR(dividend.children[0].value)
             dividend.children[1].value = diff
@@ -402,9 +340,6 @@ def divide_monomials(dividend: NODE, divisor: NODE) -> NODE:
                     return dividend
                 dividend.children[i].children[1].value = diff
                 return dividend
-    # In the final case divisor is an instance of MUL
-
-
     return find_long_monomial_diff(dividend, divisor)
 
 def long_division(node: DIV):
@@ -433,39 +368,24 @@ def long_division(node: DIV):
     
     q = []
 
-    counter = 0
-
     while True:
         foremost_dividend_monomial = deepcopy(dividend.children[0]) if isinstance(dividend, ADD) else deepcopy(dividend)
         foremost_divisor_monomial = deepcopy(divisor.children[0]) if isinstance(divisor, ADD) else deepcopy(divisor)
         if monomial_divides_monomial(foremost_dividend_monomial, foremost_divisor_monomial):
-            print("Now dividing the monomials", foremost_dividend_monomial, foremost_divisor_monomial)
             im = divide_monomials(foremost_dividend_monomial, foremost_divisor_monomial)
-            print("IM", im.__class__, im.value)
-            print("Now creating the subtraction monomial")
+            if isinstance(im, int):
+                im = CONST(im)
             subtraction = ADD(*[MUL(CONST(-1), im, monomial) for monomial in divisor.children])
-            print("Now simplifying the subtraction monomial,", subtraction)
+
             for _ in range(4):
                 subtraction.simplify()
 
-            print("The subtraction monomial is", subtraction)
-
             q.append(im)
-            print("q:", q)
-            print("Next subtracting the subtraction polynomial")
             for child in subtraction.children:
                 dividend.children.append(child)
-            print("Result of subtraction:", dividend)
             for _ in range(4):
                 dividend.simplify()
-            print("Simplified dividend", dividend)
-            print("Finally changing to lex order")
             dividend = change_to_lex_order(dividend)
-            print("In lex order", dividend)
-            counter += 1
-            if counter == 10:
-                print("Something went wrong")
-                break
         else:
             if len(q) > 1:
                 return ADD(*q), dividend
