@@ -76,4 +76,4 @@ if __name__ == "__main__":
     init(autoreset=True)
     system("cls")
 
-    TEST(False)
+    TEST(True)
